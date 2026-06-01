@@ -440,7 +440,7 @@ def _deep_dive_paragraphs(candidate: RankedCandidate) -> tuple:
 
     return (
         (
-            f"Nick thesis fit: {company.ticker} scores {candidate.score} with risk "
+            f"Thesis fit: {company.ticker} scores {candidate.score} with risk "
             f"{candidate.risk_tier}. It maps to {company.value_chain_layer}, with "
             f"{company.exposure} exposure to the thesis through matched terms "
             f"{matched_terms}. score breakdown: {_score_breakdown_text(candidate)}."
@@ -461,15 +461,26 @@ def _deep_dive_paragraphs(candidate: RankedCandidate) -> tuple:
 def _html_candidate(candidate: RankedCandidate) -> str:
     company = candidate.company
     paragraphs = "".join(
-        f"<p>{html.escape(paragraph)}</p>"
+        f"<p style=\"margin:10px 0 0;line-height:1.55\">{html.escape(paragraph)}</p>"
         for paragraph in _deep_dive_paragraphs(candidate)
     )
     return f"""
-      <article style="border-top:1px solid #ddd;padding:12px 0">
-        <h3 style="margin:0">{html.escape(company.ticker)} - {html.escape(company.name)}</h3>
-        <p><strong>Score:</strong> {candidate.score} &nbsp; <strong>Risk:</strong> {candidate.risk_tier}<br>
-        <strong>Layer:</strong> {html.escape(company.value_chain_layer)}<br>
-        <strong>Exposure:</strong> {html.escape(company.exposure)}</p>
+      <article style="border:1px solid #e6e1d8;border-radius:14px;padding:18px 20px;margin:16px 0;background:#fff">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start">
+          <div>
+            <p style="margin:0 0 4px;color:#8a6f3f;font-size:12px;text-transform:uppercase;letter-spacing:.08em">Hidden Gem Candidate</p>
+            <h3 style="margin:0;color:#111;font-size:22px">{html.escape(company.ticker)} - {html.escape(company.name)}</h3>
+          </div>
+          <div style="text-align:right;white-space:nowrap">
+            <div style="font-size:24px;font-weight:700;color:#111">{candidate.score}</div>
+            <div style="font-size:12px;color:#666">Score</div>
+          </div>
+        </div>
+        <p style="margin:12px 0 0;line-height:1.5">
+          <strong>Risk:</strong> {candidate.risk_tier} &nbsp;|&nbsp;
+          <strong>Exposure:</strong> {html.escape(company.exposure)}<br>
+          <strong>Layer:</strong> {html.escape(company.value_chain_layer)}
+        </p>
         {paragraphs}
       </article>
     """
@@ -488,9 +499,9 @@ def _text_candidate(candidate: RankedCandidate) -> str:
 def _html_section(track: ThesisTrack, report: ThesisReport) -> str:
     candidates = "".join(_html_candidate(candidate) for candidate in report.candidates)
     return f"""
-      <section style="margin:24px 0">
-        <h2>{html.escape(track.title)}</h2>
-        <p><strong>Thesis:</strong> {html.escape(track.thesis)}</p>
+      <section style="margin:28px 0">
+        <h2 style="font-size:24px;margin:0 0 6px;color:#111">{html.escape(track.title)}</h2>
+        <p style="margin:0 0 14px;color:#555;line-height:1.5"><strong>Thesis:</strong> {html.escape(track.thesis)}</p>
         {candidates or "<p>No configured candidates matched this thesis.</p>"}
       </section>
     """
@@ -523,18 +534,23 @@ def build_daily_digest(
     )
     excluded_note = _excluded_note()
     return DailyDigest(
-        subject=f"Nick Research Digest | Optical Networking Bottleneck | {date_label}",
+        subject=f"Market Research Digest | Hidden Gems | {date_label}",
         html=f"""
-        <main style="font-family:Arial,sans-serif;max-width:760px;margin:auto;color:#161616">
-          <h1>Nick Framework Daily Research</h1>
-          <p>{html.escape(date_label)} | Snapshot: {html.escape(provider.as_of())}</p>
-          <p><strong>{html.escape(notice)}</strong></p>
-          <p style="font-size:13px;color:#555">{html.escape(excluded_note)}</p>
+        <main style="font-family:Arial,sans-serif;max-width:780px;margin:auto;color:#161616;background:#faf7f0;padding:28px">
+          <section style="background:#111;color:#fff;border-radius:18px;padding:24px;margin-bottom:18px">
+            <p style="margin:0 0 8px;color:#d6b46a;font-size:12px;text-transform:uppercase;letter-spacing:.1em">Daily Research Brief</p>
+            <h1 style="margin:0;font-size:30px;line-height:1.15">Hidden Gem Stock Research</h1>
+            <p style="margin:12px 0 0;color:#ddd">{html.escape(date_label)} | Snapshot: {html.escape(provider.as_of())} | Minimum score: {MIN_NICK_SCORE}</p>
+          </section>
+          <section style="background:#fff;border:1px solid #e6e1d8;border-radius:14px;padding:16px 18px;margin-bottom:18px">
+            <p style="margin:0;line-height:1.5"><strong>{html.escape(notice)}</strong></p>
+            <p style="font-size:13px;color:#666;margin:10px 0 0;line-height:1.45">{html.escape(excluded_note)}</p>
+          </section>
           {html_sections}
         </main>
         """,
         text=(
-            f"Nick Framework Daily Research\n{date_label} | Snapshot: {provider.as_of()}\n\n"
+            f"Hidden Gem Stock Research\n{date_label} | Snapshot: {provider.as_of()} | Minimum score: {MIN_NICK_SCORE}\n\n"
             f"{notice}\n\n{excluded_note}\n\n{text_sections}\n"
         ),
     )
@@ -584,7 +600,7 @@ def run_daily_digest(
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Send the daily Nick-framework research digest.")
+    parser = argparse.ArgumentParser(description="Send the daily market research digest.")
     parser.add_argument("--dry-run", action="store_true", help="Write an HTML preview without sending.")
     parser.add_argument("--force", action="store_true", help="Run outside Toronto's 9 AM hour.")
     parser.add_argument(
