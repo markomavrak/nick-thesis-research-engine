@@ -1,0 +1,33 @@
+name: Daily Stock Research Email
+
+on:
+  schedule:
+    - cron: "7 13,14 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  daily-digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Send scheduled digest
+        if: github.event_name == 'schedule'
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+        run: PYTHONPATH=src python3 -m nick_engine.daily_digest
+
+      - name: Preview manual run
+        if: github.event_name == 'workflow_dispatch'
+        run: PYTHONPATH=src python3 -m nick_engine.daily_digest --dry-run --force
