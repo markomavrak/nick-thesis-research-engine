@@ -102,6 +102,7 @@ class DailyDigestTests(unittest.TestCase):
                 force=True,
                 environment={},
                 output_directory=Path(temporary_directory),
+                provider=FixtureResearchProvider(),
             )
 
             preview = Path(temporary_directory) / "daily-stock-research-preview.html"
