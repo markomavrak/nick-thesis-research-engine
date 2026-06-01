@@ -155,6 +155,60 @@ class LiveProviderTests(unittest.TestCase):
         self.assertIn("Latest SEC filing 10-Q", enriched.catalysts)
         self.assertIn("SEC 10-Q filing", [item.title for item in enriched.evidence])
         self.assertIn("Live refresh market data before acting", enriched.missing_information)
+        self.assertIn("Fresh filing: latest 10-Q", enriched.near_term_signals)
+
+    def test_live_provider_adds_explosive_setup_signals_from_price_volume_and_news(self):
+        def opener(request, timeout):
+            url = request.full_url
+            if "company_tickers.json" in url:
+                return FakeResponse(json.dumps({"0": {"ticker": "TEX", "cik_str": 97216, "title": "TEREX CORP"}}))
+            if "submissions" in url:
+                return FakeResponse(
+                    json.dumps(
+                        {
+                            "filings": {
+                                "recent": {
+                                    "form": ["10-Q"],
+                                    "accessionNumber": ["0000097216-26-000001"],
+                                    "filingDate": ["2026-05-08"],
+                                    "primaryDocument": ["tex-20260331.htm"],
+                                }
+                            }
+                        }
+                    )
+                )
+            if "companyfacts" in url:
+                return FakeResponse(json.dumps({"facts": {"dei": {}}}))
+            if "feeds.finance.yahoo.com" in url:
+                return FakeResponse(
+                    """<rss><channel><item><title>Terex backlog accelerates into guidance raise</title>
+                    <link>https://example.com/news</link><pubDate>Mon, 01 Jun 2026 12:00:00 GMT</pubDate>
+                    </item></channel></rss>""",
+                    content_type="application/rss+xml",
+                )
+            if "stooq.com" in url:
+                return FakeResponse(
+                    "Date,Open,High,Low,Close,Volume\n"
+                    "2026-05-29,40,41,39,40,1000\n"
+                    "2026-06-01,44,45,43,44,3000\n",
+                    content_type="text/csv",
+                )
+            raise AssertionError(url)
+
+        provider = LiveResearchProvider(
+            base_companies=(candidate(),),
+            base_rotation_signals={},
+            client=PublicMarketDataClient(opener=opener),
+            now=datetime(2026, 6, 1, tzinfo=timezone.utc),
+        )
+
+        signals = provider.companies()[0].near_term_signals
+
+        self.assertGreaterEqual(len(signals), 4)
+        self.assertIn("Positive relative strength: one-session move +10.0%", signals)
+        self.assertIn("Volume expansion: 3.0x prior average", signals)
+        self.assertIn("Fresh filing: latest 10-Q", signals)
+        self.assertIn("Fresh news: Terex backlog accelerates into guidance raise", signals)
 
     def test_live_provider_falls_back_to_seed_company_when_sources_fail(self):
         def opener(request, timeout):
