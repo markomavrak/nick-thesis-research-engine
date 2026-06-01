@@ -73,9 +73,9 @@ def _score_candidate(
     matched_keywords: Sequence[str],
     rotation: RotationSignal,
 ) -> RankedCandidate:
-    thesis_fit = min(45, len(matched_keywords) * 12 + (12 if company.exposure == "direct" else 4))
-    evidence_quality = min(15, len(company.evidence) * 5)
-    catalyst_strength = min(10, len(company.catalysts) * 4)
+    thesis_fit = min(65, len(matched_keywords) * 20 + (25 if company.exposure == "direct" else 10))
+    evidence_quality = min(20, len(company.evidence) * 10)
+    catalyst_strength = min(15, len(company.catalysts) * 8)
     sector_rotation = ROTATION_SCORES.get(rotation.direction, 0)
     liquidity = LIQUIDITY_SCORES.get(company.liquidity, 0)
     risk_penalty = -min(15, len(company.risk_flags) * 4)
