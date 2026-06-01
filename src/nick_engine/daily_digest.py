@@ -46,7 +46,7 @@ THESIS_TRACKS = (
 )
 
 DIGEST_RECIPIENTS = ("marko@advertra.ca", "ikeepitstream@gmail.com")
-MIN_NICK_SCORE = 50
+MIN_NICK_SCORE = 80
 MAX_CANDIDATES_PER_THESIS = 3
 
 ALREADY_RESEARCHED_TICKERS = frozenset(
