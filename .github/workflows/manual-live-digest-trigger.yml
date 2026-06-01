@@ -1,0 +1,31 @@
+name: Manual Live Digest Trigger
+
+on:
+  push:
+    paths:
+      - ".github/live-digest-trigger.txt"
+
+permissions:
+  contents: read
+
+jobs:
+  send-live-digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run tests
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -v
+
+      - name: Send live digest
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || secrets.RESEARCH_ENGINE }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+        run: PYTHONPATH=src python3 -m nick_engine.daily_digest --force
