@@ -434,6 +434,71 @@ def _score_breakdown_text(candidate: RankedCandidate) -> str:
     )
 
 
+def _score_color(value: int) -> str:
+    if value >= 90:
+        return "#16a34a"
+    if value >= 75:
+        return "#d6a431"
+    return "#dc2626"
+
+
+def _bar(label: str, value: int, maximum: int = 100) -> str:
+    width = max(0, min(100, round((value / maximum) * 100)))
+    color = _score_color(value)
+    return f"""
+      <div style="margin:10px 0">
+        <div style="display:flex;justify-content:space-between;gap:12px;font-size:12px;color:#555;margin-bottom:5px">
+          <span>{html.escape(label)}</span>
+          <strong style="color:#111">{value}/{maximum}</strong>
+        </div>
+        <div style="height:9px;background:#eee5d6;border-radius:999px;overflow:hidden">
+          <div style="width:{width}%;height:9px;background:{color};border-radius:999px"></div>
+        </div>
+      </div>
+    """
+
+
+def _setup_graphic(candidate: RankedCandidate) -> str:
+    company = candidate.company
+    catalyst_count = min(len(company.catalysts), 4)
+    signal_count = min(len(candidate.setup_reasons), 4)
+    evidence_count = min(len(company.evidence), 4)
+    chips = "".join(
+        f"""
+        <td style="width:33.33%;padding:8px;border-right:{'1px solid #eadfcb' if label != 'Evidence' else '0'}">
+          <div style="font-size:20px;font-weight:700;color:#111">{count}</div>
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#7a6a52">{label}</div>
+        </td>
+        """
+        for label, count in (
+            ("Catalysts", catalyst_count),
+            ("Signals", signal_count),
+            ("Evidence", evidence_count),
+        )
+    )
+    return f"""
+      <section style="background:linear-gradient(135deg,#151515,#2b2418);border-radius:14px;padding:14px;margin:14px 0;color:#fff">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:center">
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#d6b46a">Setup Dashboard</div>
+            <div style="font-size:17px;font-weight:700;margin-top:3px">{html.escape(company.ticker)} explosive-readiness</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:28px;font-weight:800;color:#fff">{candidate.setup_score}</div>
+            <div style="font-size:11px;color:#d6b46a">Setup Score</div>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:12px;margin-top:12px;color:#111">
+          {_bar("Thesis Fit", candidate.score)}
+          {_bar("Near-Term Setup", candidate.setup_score)}
+          <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin-top:10px;background:#faf7f0;border:1px solid #eadfcb;border-radius:10px;overflow:hidden">
+            <tr>{chips}</tr>
+          </table>
+        </div>
+      </section>
+    """
+
+
 def _deep_dive_paragraphs(candidate: RankedCandidate) -> tuple:
     company = candidate.company
     matched_terms = ", ".join(candidate.matched_keywords)
@@ -491,6 +556,7 @@ def _html_candidate(candidate: RankedCandidate) -> str:
           <strong>Exposure:</strong> {html.escape(company.exposure)}<br>
           <strong>Layer:</strong> {html.escape(company.value_chain_layer)}
         </p>
+        {_setup_graphic(candidate)}
         {paragraphs}
       </article>
     """
