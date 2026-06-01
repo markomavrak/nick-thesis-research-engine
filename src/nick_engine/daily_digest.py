@@ -1,7 +1,7 @@
 import argparse
 import html
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Mapping, Optional, Sequence, Type
@@ -46,6 +46,8 @@ THESIS_TRACKS = (
 )
 
 DIGEST_RECIPIENTS = ("marko@advertra.ca", "ikeepitstream@gmail.com")
+MIN_NICK_SCORE = 50
+MAX_CANDIDATES_PER_THESIS = 3
 
 ALREADY_RESEARCHED_TICKERS = frozenset(
     {
@@ -385,29 +387,63 @@ def _fresh_companies(provider: ResearchProvider) -> tuple:
 
 def _reports(provider: ResearchProvider) -> Sequence[tuple]:
     companies = _fresh_companies(provider)
-    return tuple(
-        (
-            track,
-            analyze_thesis(
-                track.thesis,
-                companies,
-                provider.rotation_signals(),
-                max_market_cap_b=track.max_market_cap_b,
-            ),
+    reports = []
+    for track in THESIS_TRACKS:
+        report = analyze_thesis(
+            track.thesis,
+            companies,
+            provider.rotation_signals(),
+            max_market_cap_b=track.max_market_cap_b,
         )
-        for track in THESIS_TRACKS
+        high_conviction = tuple(
+            candidate
+            for candidate in report.candidates
+            if candidate.score >= MIN_NICK_SCORE
+        )[:MAX_CANDIDATES_PER_THESIS]
+        reports.append((track, replace(report, candidates=high_conviction)))
+    return tuple(reports)
+
+
+def _score_breakdown_text(candidate: RankedCandidate) -> str:
+    return ", ".join(
+        f"{key.replace('_', ' ')} {value:+d}"
+        for key, value in candidate.score_breakdown.items()
+    )
+
+
+def _deep_dive_paragraphs(candidate: RankedCandidate) -> tuple:
+    company = candidate.company
+    matched_terms = ", ".join(candidate.matched_keywords)
+    catalysts = "; ".join(company.catalysts)
+    risks = "; ".join(company.risks)
+    invalidations = "; ".join(company.invalidation_signals)
+    sources = "; ".join(f"{item.title}: {item.url}" for item in company.evidence)
+
+    return (
+        (
+            f"Nick thesis fit: {company.ticker} scores {candidate.score} with risk "
+            f"{candidate.risk_tier}. It maps to {company.value_chain_layer}, with "
+            f"{company.exposure} exposure to the thesis through matched terms "
+            f"{matched_terms}. score breakdown: {_score_breakdown_text(candidate)}."
+        ),
+        (
+            f"Why it can work: {company.summary} The practical setup is {catalysts}. "
+            f"The hidden-gem angle is that this is not the obvious mega-cap expression; "
+            f"it is a smaller value-chain beneficiary that can re-rate if money rotates "
+            f"from the headline names into the bottleneck layer."
+        ),
+        (
+            f"What kills it: {risks}. The invalidation checklist is {invalidations}. "
+            f"Source trail for deeper review: {sources}."
+        ),
     )
 
 
 def _html_candidate(candidate: RankedCandidate) -> str:
     company = candidate.company
-    catalysts = "".join(f"<li>{html.escape(item)}</li>" for item in company.catalysts)
-    invalidations = "".join(
-        f"<li>{html.escape(item)}</li>" for item in company.invalidation_signals
-    )
-    sources = "".join(
-        f'<li><a href="{html.escape(item.url)}">{html.escape(item.title)}</a></li>'
-        for item in company.evidence
+    paragraphs = "".join(
+        f"<p>{html.escape(paragraph)}</p>"
+        for paragraph in _deep_dive_paragraphs(candidate)
     )
     return f"""
       <article style="border-top:1px solid #ddd;padding:12px 0">
@@ -415,23 +451,18 @@ def _html_candidate(candidate: RankedCandidate) -> str:
         <p><strong>Score:</strong> {candidate.score} &nbsp; <strong>Risk:</strong> {candidate.risk_tier}<br>
         <strong>Layer:</strong> {html.escape(company.value_chain_layer)}<br>
         <strong>Exposure:</strong> {html.escape(company.exposure)}</p>
-        <p>{html.escape(company.summary)}</p>
-        <p><strong>Catalysts</strong></p><ul>{catalysts}</ul>
-        <p><strong>Invalidation signals</strong></p><ul>{invalidations}</ul>
-        <p><strong>Sources</strong></p><ul>{sources}</ul>
+        {paragraphs}
       </article>
     """
 
 
 def _text_candidate(candidate: RankedCandidate) -> str:
     company = candidate.company
-    catalysts = "; ".join(company.catalysts)
-    invalidations = "; ".join(company.invalidation_signals)
-    sources = ", ".join(item.url for item in company.evidence)
+    paragraphs = "\n\n".join(_deep_dive_paragraphs(candidate))
     return (
         f"{company.ticker} - {company.name} | score {candidate.score} | risk {candidate.risk_tier}\n"
         f"Layer: {company.value_chain_layer} | exposure: {company.exposure}\n"
-        f"{company.summary}\nCatalysts: {catalysts}\nInvalidation: {invalidations}\nSources: {sources}"
+        f"{paragraphs}"
     )
 
 
