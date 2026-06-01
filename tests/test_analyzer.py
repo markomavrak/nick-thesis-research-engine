@@ -13,6 +13,9 @@ def company(
     exposure: str = "direct",
     liquidity: str = "high",
     risk_flags: tuple[str, ...] = (),
+    catalysts: tuple[str, ...] = ("Demand growth",),
+    evidence_count: int = 1,
+    near_term_signals: tuple[str, ...] = (),
 ) -> CandidateCompany:
     return CandidateCompany(
         ticker=ticker,
@@ -24,18 +27,20 @@ def company(
         exposure=exposure,
         thesis_keywords=keywords,
         summary=f"{ticker} summary",
-        catalysts=("Demand growth",),
+        catalysts=catalysts,
         risks=("Cyclical slowdown",),
         invalidation_signals=("Orders fall",),
-        evidence=(
+        evidence=tuple(
             Evidence(
-                title="Company evidence",
-                url="https://example.com/evidence",
+                title=f"Company evidence {index}",
+                url=f"https://example.com/evidence-{index}",
                 observed_at="2026-05-01",
-            ),
+            )
+            for index in range(evidence_count)
         ),
         liquidity=liquidity,
         risk_flags=risk_flags,
+        near_term_signals=near_term_signals,
     )
 
 
@@ -130,6 +135,37 @@ class AnalyzeThesisTests(unittest.TestCase):
         )
 
         self.assertEqual("3/3", report.candidates[0].risk_tier)
+
+    def test_explosive_setup_score_requires_multiple_near_term_reasons(self):
+        explosive = company(
+            ticker="BOOM",
+            market_cap_b=2,
+            keywords=("construction", "equipment"),
+            catalysts=("Backlog acceleration", "Equipment replacement cycle"),
+            evidence_count=2,
+            near_term_signals=("Volume expansion: 2.1x prior average", "Fresh 10-Q catalyst"),
+        )
+        slow = company(
+            ticker="SLOW",
+            market_cap_b=40,
+            keywords=("construction", "equipment"),
+            catalysts=("Long-term demand",),
+            evidence_count=1,
+        )
+
+        report = analyze_thesis(
+            "construction equipment demand",
+            [slow, explosive],
+            {"Industrials": RotationSignal("Industrials", "in", "Improving breadth", "2026-05-31")},
+        )
+
+        self.assertEqual("BOOM", report.candidates[0].company.ticker)
+        self.assertGreaterEqual(report.candidates[0].setup_score, 60)
+        self.assertGreaterEqual(len(report.candidates[0].setup_reasons), 2)
+        self.assertTrue(
+            any("Volume expansion" in reason for reason in report.candidates[0].setup_reasons)
+        )
+        self.assertLess(report.candidates[1].setup_score, report.candidates[0].setup_score)
 
     def test_construction_equipment_fixture_surfaces_smaller_second_order_names(self):
         report = analyze_thesis(
