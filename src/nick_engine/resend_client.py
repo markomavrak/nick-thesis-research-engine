@@ -1,5 +1,6 @@
 import json
 import re
+from hashlib import sha1
 from datetime import date
 from typing import Callable, Dict
 from urllib.request import Request, urlopen
@@ -10,9 +11,11 @@ from .daily_digest import DailyDigest
 RESEND_EMAILS_URL = "https://api.resend.com/emails"
 
 
-def _idempotency_key(send_date: date, recipient: str) -> str:
+def _idempotency_key(send_date: date, recipient: str, digest: DailyDigest) -> str:
     normalized_recipient = re.sub(r"[^a-z0-9]+", "-", recipient.lower()).strip("-")
-    return f"nick-research-{send_date.isoformat()}-{normalized_recipient}"
+    fingerprint_source = f"{digest.subject}\n{digest.html}\n{digest.text}".encode("utf-8")
+    fingerprint = sha1(fingerprint_source).hexdigest()[:12]
+    return f"nick-research-{send_date.isoformat()}-{normalized_recipient}-{fingerprint}"
 
 
 class ResendClient:
@@ -54,7 +57,7 @@ class ResendClient:
             headers={
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
-                "Idempotency-Key": _idempotency_key(send_date, to_email),
+                "Idempotency-Key": _idempotency_key(send_date, to_email, digest),
                 "User-Agent": "nick-thesis-research-engine/1.0",
             },
         )
