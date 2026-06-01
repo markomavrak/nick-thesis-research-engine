@@ -19,7 +19,7 @@ class DailyDigestTests(unittest.TestCase):
     def test_digest_contains_all_three_thesis_tracks_and_ranked_names(self):
         digest = build_daily_digest(FixtureResearchProvider())
 
-        self.assertIn("Optical Networking Bottleneck", digest.subject)
+        self.assertIn("Market Research Digest", digest.subject)
         self.assertIn("Optical Networking Bottleneck", digest.html)
         self.assertIn("Memory / HBM Bottleneck", digest.html)
         self.assertIn("Construction Equipment Demand", digest.html)
@@ -28,14 +28,23 @@ class DailyDigestTests(unittest.TestCase):
         self.assertIn("TEX", digest.html)
         self.assertIn("Research watchlist only", digest.text)
 
-    def test_digest_uses_deep_dive_paragraphs_tied_to_nick_thesis(self):
+    def test_digest_uses_deep_dive_paragraphs_tied_to_thesis(self):
         digest = build_daily_digest(FixtureResearchProvider())
 
-        self.assertIn("Nick thesis fit:", digest.text)
+        self.assertIn("Thesis fit:", digest.text)
         self.assertIn("Why it can work:", digest.text)
         self.assertIn("What kills it:", digest.text)
         self.assertIn("matched terms", digest.text)
         self.assertIn("score breakdown", digest.text)
+
+    def test_digest_email_copy_does_not_mention_nick(self):
+        digest = build_daily_digest(FixtureResearchProvider())
+
+        self.assertNotIn("Nick", digest.subject)
+        self.assertNotIn("Nick", digest.html)
+        self.assertNotIn("Nick", digest.text)
+        self.assertIn("Market Research Digest", digest.subject)
+        self.assertIn("Hidden Gem Stock Research", digest.html)
 
     def test_digest_filters_to_high_scoring_hidden_gems(self):
         reports = _reports(FixtureResearchProvider())
@@ -109,7 +118,7 @@ class DailyDigestTests(unittest.TestCase):
 
             self.assertEqual("dry-run", result.status)
             self.assertTrue(preview.exists())
-            self.assertIn("Nick Framework Daily Research", preview.read_text())
+            self.assertIn("Hidden Gem Stock Research", preview.read_text())
 
     def test_live_run_sends_to_both_recipients(self):
         captured = {"recipients": [], "send_dates": []}
@@ -132,6 +141,7 @@ class DailyDigestTests(unittest.TestCase):
                 "RESEND_API_KEY": "re_test",
                 "RESEND_FROM_EMAIL": "research@example.com",
             },
+            provider=FixtureResearchProvider(),
             client_class=FakeClient,
         )
 
