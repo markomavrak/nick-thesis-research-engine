@@ -381,8 +381,27 @@ def _fresh_companies(provider: ResearchProvider) -> tuple:
     for company in tuple(provider.companies()) + HIDDEN_GEM_COMPANIES:
         ticker = company.ticker.upper()
         if ticker not in ALREADY_RESEARCHED_TICKERS:
-            fresh[ticker] = company
+            fresh.setdefault(ticker, company)
     return tuple(fresh.values())
+
+
+def _default_research_provider(environment: Mapping[str, str] = None) -> ResearchProvider:
+    from .fixtures import COMPANIES, ROTATION_SIGNALS
+    from .live_provider import LiveResearchProvider
+    from .providers import FixtureResearchProvider
+
+    values = environment if environment is not None else os.environ
+    if values.get("NICK_RESEARCH_PROVIDER", "").lower() == "fixture":
+        return FixtureResearchProvider()
+    live_candidates = tuple(
+        company
+        for company in tuple(COMPANIES) + HIDDEN_GEM_COMPANIES
+        if company.ticker.upper() not in ALREADY_RESEARCHED_TICKERS
+    )
+    return LiveResearchProvider(
+        base_companies=live_candidates,
+        base_rotation_signals=ROTATION_SIGNALS,
+    )
 
 
 def _reports(provider: ResearchProvider) -> Sequence[tuple]:
@@ -531,14 +550,13 @@ def run_daily_digest(
     provider: ResearchProvider = None,
     client_class: Type = None,
 ) -> RunResult:
-    from .providers import FixtureResearchProvider
     from .resend_client import ResendClient
 
     current_time = now or datetime.now(timezone.utc)
     if not force and not is_toronto_send_hour(current_time):
         return RunResult("skipped", "Skipped: outside Toronto 9 AM hour.")
 
-    research_provider = provider or FixtureResearchProvider()
+    research_provider = provider or _default_research_provider(environment=environment)
     digest = build_daily_digest(research_provider, current_time)
     if dry_run:
         output_directory.mkdir(parents=True, exist_ok=True)
