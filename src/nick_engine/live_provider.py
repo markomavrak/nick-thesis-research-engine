@@ -250,6 +250,7 @@ class LiveResearchProvider:
         catalysts = list(company.catalysts)
         risks = list(company.risks)
         invalidations = list(company.invalidation_signals)
+        near_term_signals = list(company.near_term_signals)
         market_cap = company.market_cap_b
 
         if snapshot.market_cap_b:
@@ -258,8 +259,16 @@ class LiveResearchProvider:
             context = f"Live market context: last price ${snapshot.price:.2f}"
             if snapshot.relative_strength_pct is not None:
                 context += f", one-session move {snapshot.relative_strength_pct:+.1f}%"
+                if snapshot.relative_strength_pct >= 3:
+                    near_term_signals.append(
+                        f"Positive relative strength: one-session move {snapshot.relative_strength_pct:+.1f}%"
+                    )
             if snapshot.volume_ratio is not None:
                 context += f", volume {snapshot.volume_ratio:.1f}x prior average"
+                if snapshot.volume_ratio >= 1.5:
+                    near_term_signals.append(
+                        f"Volume expansion: {snapshot.volume_ratio:.1f}x prior average"
+                    )
             summary = f"{company.summary} {context}."
         else:
             summary = company.summary
@@ -267,6 +276,7 @@ class LiveResearchProvider:
         if snapshot.filings:
             latest = snapshot.filings[0]
             catalysts.append(f"Latest SEC filing {latest.form}")
+            near_term_signals.append(f"Fresh filing: latest {latest.form}")
             evidence.append(
                 Evidence(
                     title=f"SEC {latest.form} filing",
@@ -277,6 +287,7 @@ class LiveResearchProvider:
         if snapshot.news:
             latest_news = snapshot.news[0]
             catalysts.append(f"Recent news: {latest_news.title}")
+            near_term_signals.append(f"Fresh news: {latest_news.title}")
             evidence.append(
                 Evidence(
                     title=latest_news.title,
@@ -297,6 +308,7 @@ class LiveResearchProvider:
             risks=tuple(dict.fromkeys(risks)),
             invalidation_signals=tuple(dict.fromkeys(invalidations)),
             evidence=tuple(dict.fromkeys(evidence)),
+            near_term_signals=tuple(dict.fromkeys(near_term_signals)),
             missing_information=(
                 "Live refresh market data before acting",
                 "Read full latest SEC filing",
