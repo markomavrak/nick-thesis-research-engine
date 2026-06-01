@@ -1,6 +1,8 @@
 import json
 import unittest
 from datetime import date
+from io import BytesIO
+from urllib.error import HTTPError
 
 from nick_engine.daily_digest import DailyDigest
 from nick_engine.resend_client import ResendClient
@@ -58,6 +60,29 @@ class ResendClientTests(unittest.TestCase):
         self.assertEqual(["marko@advertra.ca"], captured["payload"]["to"])
         self.assertEqual("Morning", captured["payload"]["subject"])
         self.assertEqual(20, captured["timeout"])
+
+    def test_resend_http_error_includes_response_body(self):
+        def fake_open(request, timeout):
+            raise HTTPError(
+                request.full_url,
+                403,
+                "Forbidden",
+                hdrs=None,
+                fp=BytesIO(b'{"message":"domain is not verified"}'),
+            )
+
+        client = ResendClient(
+            api_key="re_test",
+            from_email="research@example.com",
+            opener=fake_open,
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "domain is not verified"):
+            client.send_digest(
+                DailyDigest(subject="Morning", html="<p>Report</p>", text="Report"),
+                to_email="marko@advertra.ca",
+                send_date=date(2026, 6, 1),
+            )
 
 
 if __name__ == "__main__":
