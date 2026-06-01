@@ -6,7 +6,9 @@ from pathlib import Path
 from nick_engine.daily_digest import (
     ALREADY_RESEARCHED_TICKERS,
     DIGEST_RECIPIENTS,
+    MIN_EXPLOSIVE_SETUP_SCORE,
     MIN_NICK_SCORE,
+    MIN_NEAR_TERM_REASONS,
     build_daily_digest,
     is_toronto_send_hour,
     run_daily_digest,
@@ -55,6 +57,8 @@ class DailyDigestTests(unittest.TestCase):
             self.assertLessEqual(len(report.candidates), 3)
             for candidate in report.candidates:
                 self.assertGreaterEqual(candidate.score, MIN_NICK_SCORE)
+                self.assertGreaterEqual(candidate.setup_score, MIN_EXPLOSIVE_SETUP_SCORE)
+                self.assertGreaterEqual(len(candidate.setup_reasons), MIN_NEAR_TERM_REASONS)
                 self.assertNotIn(candidate.company.ticker, ALREADY_RESEARCHED_TICKERS)
 
         construction_tickers = [item.company.ticker for item in reports[2][1].candidates]
@@ -70,6 +74,14 @@ class DailyDigestTests(unittest.TestCase):
         self.assertNotIn("MU - Micron Technology", digest.text)
         self.assertNotIn("LITE - Lumentum", digest.text)
         self.assertIn("Already researched tickers excluded", digest.text)
+
+    def test_digest_explains_why_candidates_can_move_soon(self):
+        digest = build_daily_digest(FixtureResearchProvider())
+
+        self.assertIn("Why it could move soon:", digest.text)
+        self.assertIn("Setup score", digest.text)
+        self.assertIn("Small/mid-cap torque", digest.text)
+        self.assertIn("why it could move soon", digest.html.lower())
 
     def test_digest_has_two_recipients_configured(self):
         self.assertEqual(
