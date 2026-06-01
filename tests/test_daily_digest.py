@@ -6,10 +6,12 @@ from pathlib import Path
 from nick_engine.daily_digest import (
     ALREADY_RESEARCHED_TICKERS,
     DIGEST_RECIPIENTS,
+    MIN_NICK_SCORE,
     build_daily_digest,
     is_toronto_send_hour,
     run_daily_digest,
 )
+from nick_engine.daily_digest import _reports
 from nick_engine.providers import FixtureResearchProvider
 
 
@@ -25,6 +27,29 @@ class DailyDigestTests(unittest.TestCase):
         self.assertIn("FORM", digest.html)
         self.assertIn("TEX", digest.html)
         self.assertIn("Research watchlist only", digest.text)
+
+    def test_digest_uses_deep_dive_paragraphs_tied_to_nick_thesis(self):
+        digest = build_daily_digest(FixtureResearchProvider())
+
+        self.assertIn("Nick thesis fit:", digest.text)
+        self.assertIn("Why it can work:", digest.text)
+        self.assertIn("What kills it:", digest.text)
+        self.assertIn("matched terms", digest.text)
+        self.assertIn("score breakdown", digest.text)
+
+    def test_digest_filters_to_high_scoring_hidden_gems(self):
+        reports = _reports(FixtureResearchProvider())
+
+        for _, report in reports:
+            self.assertTrue(report.candidates)
+            self.assertLessEqual(len(report.candidates), 3)
+            for candidate in report.candidates:
+                self.assertGreaterEqual(candidate.score, MIN_NICK_SCORE)
+                self.assertNotIn(candidate.company.ticker, ALREADY_RESEARCHED_TICKERS)
+
+        construction_tickers = [item.company.ticker for item in reports[2][1].candidates]
+        self.assertEqual(["ASTE", "TEX", "MTW"], construction_tickers)
+        self.assertNotIn("HRI", construction_tickers)
 
     def test_digest_excludes_already_researched_tickers(self):
         digest = build_daily_digest(FixtureResearchProvider())
