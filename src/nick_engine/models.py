@@ -34,6 +34,7 @@ class CandidateCompany:
     evidence: Tuple[Evidence, ...]
     liquidity: str
     risk_flags: Tuple[str, ...] = ()
+    near_term_signals: Tuple[str, ...] = ()
     missing_information: Tuple[str, ...] = (
         "Refresh market capitalization",
         "Refresh sector rotation using price, volume, and breadth",
@@ -48,6 +49,8 @@ class RankedCandidate:
     score: int
     score_breakdown: Dict[str, int]
     risk_tier: str
+    setup_score: int = 0
+    setup_reasons: Tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
