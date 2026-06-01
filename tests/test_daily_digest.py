@@ -82,6 +82,9 @@ class DailyDigestTests(unittest.TestCase):
         self.assertIn("Setup score", digest.text)
         self.assertIn("Small/mid-cap torque", digest.text)
         self.assertIn("why it could move soon", digest.html.lower())
+        self.assertIn("Setup Dashboard", digest.html)
+        self.assertIn("Near-Term Setup", digest.html)
+        self.assertIn("Thesis Fit", digest.html)
 
     def test_digest_has_two_recipients_configured(self):
         self.assertEqual(
