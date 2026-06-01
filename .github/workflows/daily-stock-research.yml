@@ -27,7 +27,7 @@ jobs:
       - name: Send scheduled digest
         if: github.event_name == 'schedule'
         env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || secrets.RESEARCH_ENGINE }}
           RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
         run: PYTHONPATH=src python3 -m nick_engine.daily_digest
 
