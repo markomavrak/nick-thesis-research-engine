@@ -38,6 +38,7 @@ jobs:
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || secrets.RESEARCH_ENGINE }}
           RESEND_FROM_EMAIL: Market Research <onboarding@resend.dev>
+          DIGEST_RECIPIENTS: marko@advertra.ca
         run: PYTHONPATH=src python3 -m nick_engine.daily_digest
 
       - name: Preview manual run
@@ -49,4 +50,5 @@ jobs:
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || secrets.RESEARCH_ENGINE }}
           RESEND_FROM_EMAIL: Market Research <onboarding@resend.dev>
+          DIGEST_RECIPIENTS: marko@advertra.ca
         run: PYTHONPATH=src python3 -m nick_engine.daily_digest --force
