@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from nick_engine.daily_digest import (
+    ALREADY_RESEARCHED_TICKERS,
+    DIGEST_RECIPIENTS,
     build_daily_digest,
     is_toronto_send_hour,
     run_daily_digest,
@@ -19,10 +21,26 @@ class DailyDigestTests(unittest.TestCase):
         self.assertIn("Optical Networking Bottleneck", digest.html)
         self.assertIn("Memory / HBM Bottleneck", digest.html)
         self.assertIn("Construction Equipment Demand", digest.html)
-        self.assertIn("CIEN", digest.html)
-        self.assertIn("MU", digest.html)
-        self.assertIn("ASTE", digest.html)
+        self.assertIn("ADTN", digest.html)
+        self.assertIn("FORM", digest.html)
+        self.assertIn("TEX", digest.html)
         self.assertIn("Research watchlist only", digest.text)
+
+    def test_digest_excludes_already_researched_tickers(self):
+        digest = build_daily_digest(FixtureResearchProvider())
+
+        self.assertIn("CAT", ALREADY_RESEARCHED_TICKERS)
+        self.assertIn("MU", ALREADY_RESEARCHED_TICKERS)
+        self.assertNotIn("CAT - Caterpillar", digest.text)
+        self.assertNotIn("MU - Micron Technology", digest.text)
+        self.assertNotIn("LITE - Lumentum", digest.text)
+        self.assertIn("Already researched tickers excluded", digest.text)
+
+    def test_digest_has_two_recipients_configured(self):
+        self.assertEqual(
+            ("marko@advertra.ca", "ikeepitstream@gmail.com"),
+            DIGEST_RECIPIENTS,
+        )
 
     def test_toronto_send_hour_handles_winter_utc_offset(self):
         now = datetime(2026, 1, 5, 14, 12, tzinfo=timezone.utc)
@@ -66,8 +84,8 @@ class DailyDigestTests(unittest.TestCase):
             self.assertTrue(preview.exists())
             self.assertIn("Nick Framework Daily Research", preview.read_text())
 
-    def test_live_run_sends_to_marko(self):
-        captured = {}
+    def test_live_run_sends_to_both_recipients(self):
+        captured = {"recipients": [], "send_dates": []}
 
         class FakeClient:
             def __init__(self, *, api_key, from_email):
@@ -75,9 +93,9 @@ class DailyDigestTests(unittest.TestCase):
                 captured["from_email"] = from_email
 
             def send_digest(self, digest, *, to_email, send_date):
-                captured["recipient"] = to_email
-                captured["send_date"] = send_date.isoformat()
-                return {"id": "email_123"}
+                captured["recipients"].append(to_email)
+                captured["send_dates"].append(send_date.isoformat())
+                return {"id": f"email_{len(captured['recipients'])}"}
 
         result = run_daily_digest(
             now=datetime(2026, 6, 1, 13, 12, tzinfo=timezone.utc),
@@ -91,8 +109,13 @@ class DailyDigestTests(unittest.TestCase):
         )
 
         self.assertEqual("sent", result.status)
-        self.assertEqual("marko@advertra.ca", captured["recipient"])
-        self.assertEqual("2026-06-01", captured["send_date"])
+        self.assertEqual(
+            ["marko@advertra.ca", "ikeepitstream@gmail.com"],
+            captured["recipients"],
+        )
+        self.assertEqual(["2026-06-01", "2026-06-01"], captured["send_dates"])
+        self.assertIn("email_1", result.message)
+        self.assertIn("email_2", result.message)
 
 
 if __name__ == "__main__":
