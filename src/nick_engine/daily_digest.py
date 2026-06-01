@@ -596,6 +596,18 @@ def _excluded_note() -> str:
     )
 
 
+def _digest_recipients(environment: Mapping[str, str] = None) -> tuple:
+    values = environment if environment is not None else os.environ
+    configured = values.get("DIGEST_RECIPIENTS", "")
+    if not configured:
+        return DIGEST_RECIPIENTS
+    return tuple(
+        recipient.strip()
+        for recipient in configured.split(",")
+        if recipient.strip()
+    )
+
+
 def build_daily_digest(
     provider: ResearchProvider,
     now: datetime = None,
@@ -671,7 +683,7 @@ def run_daily_digest(
             to_email=recipient,
             send_date=local_date,
         )
-        for recipient in DIGEST_RECIPIENTS
+        for recipient in _digest_recipients(values)
     ]
     sent_ids = ", ".join(response["id"] for response in responses)
     return RunResult("sent", f"Sent daily research digest: {sent_ids}.")
