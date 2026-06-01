@@ -169,6 +169,33 @@ class DailyDigestTests(unittest.TestCase):
         self.assertIn("email_1", result.message)
         self.assertIn("email_2", result.message)
 
+    def test_live_run_can_override_recipients_from_environment(self):
+        captured = {"recipients": []}
+
+        class FakeClient:
+            def __init__(self, *, api_key, from_email):
+                pass
+
+            def send_digest(self, digest, *, to_email, send_date):
+                captured["recipients"].append(to_email)
+                return {"id": f"email_{len(captured['recipients'])}"}
+
+        result = run_daily_digest(
+            now=datetime(2026, 6, 1, 13, 12, tzinfo=timezone.utc),
+            dry_run=False,
+            force=False,
+            environment={
+                "RESEND_API_KEY": "re_test",
+                "RESEND_FROM_EMAIL": "research@example.com",
+                "DIGEST_RECIPIENTS": "marko@advertra.ca",
+            },
+            provider=FixtureResearchProvider(),
+            client_class=FakeClient,
+        )
+
+        self.assertEqual("sent", result.status)
+        self.assertEqual(["marko@advertra.ca"], captured["recipients"])
+
 
 if __name__ == "__main__":
     unittest.main()
