@@ -40,6 +40,7 @@ class DailyDigestTests(unittest.TestCase):
     def test_digest_filters_to_high_scoring_hidden_gems(self):
         reports = _reports(FixtureResearchProvider())
 
+        self.assertEqual(80, MIN_NICK_SCORE)
         for _, report in reports:
             self.assertTrue(report.candidates)
             self.assertLessEqual(len(report.candidates), 3)
