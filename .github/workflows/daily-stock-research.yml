@@ -21,6 +21,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Run tests
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -v
+
       - name: Send scheduled digest
         if: github.event_name == 'schedule'
         env:
