@@ -47,6 +47,8 @@ THESIS_TRACKS = (
 
 DIGEST_RECIPIENTS = ("marko@advertra.ca", "ikeepitstream@gmail.com")
 MIN_NICK_SCORE = 80
+MIN_EXPLOSIVE_SETUP_SCORE = 60
+MIN_NEAR_TERM_REASONS = 2
 MAX_CANDIDATES_PER_THESIS = 3
 
 ALREADY_RESEARCHED_TICKERS = frozenset(
@@ -418,6 +420,8 @@ def _reports(provider: ResearchProvider) -> Sequence[tuple]:
             candidate
             for candidate in report.candidates
             if candidate.score >= MIN_NICK_SCORE
+            and candidate.setup_score >= MIN_EXPLOSIVE_SETUP_SCORE
+            and len(candidate.setup_reasons) >= MIN_NEAR_TERM_REASONS
         )[:MAX_CANDIDATES_PER_THESIS]
         reports.append((track, replace(report, candidates=high_conviction)))
     return tuple(reports)
@@ -437,6 +441,7 @@ def _deep_dive_paragraphs(candidate: RankedCandidate) -> tuple:
     risks = "; ".join(company.risks)
     invalidations = "; ".join(company.invalidation_signals)
     sources = "; ".join(f"{item.title}: {item.url}" for item in company.evidence)
+    setup_reasons = "; ".join(candidate.setup_reasons)
 
     return (
         (
@@ -444,6 +449,10 @@ def _deep_dive_paragraphs(candidate: RankedCandidate) -> tuple:
             f"{candidate.risk_tier}. It maps to {company.value_chain_layer}, with "
             f"{company.exposure} exposure to the thesis through matched terms "
             f"{matched_terms}. score breakdown: {_score_breakdown_text(candidate)}."
+        ),
+        (
+            f"Why it could move soon: Setup score {candidate.setup_score}. "
+            f"{setup_reasons}."
         ),
         (
             f"Why it can work: {company.summary} The practical setup is {catalysts}. "
@@ -477,6 +486,7 @@ def _html_candidate(candidate: RankedCandidate) -> str:
           </div>
         </div>
         <p style="margin:12px 0 0;line-height:1.5">
+          <strong>Setup score:</strong> {candidate.setup_score} &nbsp;|&nbsp;
           <strong>Risk:</strong> {candidate.risk_tier} &nbsp;|&nbsp;
           <strong>Exposure:</strong> {html.escape(company.exposure)}<br>
           <strong>Layer:</strong> {html.escape(company.value_chain_layer)}
@@ -490,7 +500,8 @@ def _text_candidate(candidate: RankedCandidate) -> str:
     company = candidate.company
     paragraphs = "\n\n".join(_deep_dive_paragraphs(candidate))
     return (
-        f"{company.ticker} - {company.name} | score {candidate.score} | risk {candidate.risk_tier}\n"
+        f"{company.ticker} - {company.name} | score {candidate.score} | "
+        f"setup score {candidate.setup_score} | risk {candidate.risk_tier}\n"
         f"Layer: {company.value_chain_layer} | exposure: {company.exposure}\n"
         f"{paragraphs}"
     )
@@ -540,7 +551,7 @@ def build_daily_digest(
           <section style="background:#111;color:#fff;border-radius:18px;padding:24px;margin-bottom:18px">
             <p style="margin:0 0 8px;color:#d6b46a;font-size:12px;text-transform:uppercase;letter-spacing:.1em">Daily Research Brief</p>
             <h1 style="margin:0;font-size:30px;line-height:1.15">Hidden Gem Stock Research</h1>
-            <p style="margin:12px 0 0;color:#ddd">{html.escape(date_label)} | Snapshot: {html.escape(provider.as_of())} | Minimum score: {MIN_NICK_SCORE}</p>
+            <p style="margin:12px 0 0;color:#ddd">{html.escape(date_label)} | Snapshot: {html.escape(provider.as_of())} | Minimum score: {MIN_NICK_SCORE} | Setup gate: {MIN_EXPLOSIVE_SETUP_SCORE}</p>
           </section>
           <section style="background:#fff;border:1px solid #e6e1d8;border-radius:14px;padding:16px 18px;margin-bottom:18px">
             <p style="margin:0;line-height:1.5"><strong>{html.escape(notice)}</strong></p>
@@ -550,7 +561,8 @@ def build_daily_digest(
         </main>
         """,
         text=(
-            f"Hidden Gem Stock Research\n{date_label} | Snapshot: {provider.as_of()} | Minimum score: {MIN_NICK_SCORE}\n\n"
+            f"Hidden Gem Stock Research\n{date_label} | Snapshot: {provider.as_of()} | "
+            f"Minimum score: {MIN_NICK_SCORE} | Setup gate: {MIN_EXPLOSIVE_SETUP_SCORE}\n\n"
             f"{notice}\n\n{excluded_note}\n\n{text_sections}\n"
         ),
     )
