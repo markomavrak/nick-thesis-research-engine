@@ -3,6 +3,7 @@ import re
 from hashlib import sha1
 from datetime import date
 from typing import Callable, Dict
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from .daily_digest import DailyDigest
@@ -61,5 +62,9 @@ class ResendClient:
                 "User-Agent": "nick-thesis-research-engine/1.0",
             },
         )
-        with self.opener(request, timeout=20) as response:
-            return json.loads(response.read().decode("utf-8"))
+        try:
+            with self.opener(request, timeout=20) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except HTTPError as error:
+            body = error.read().decode("utf-8", "replace")
+            raise RuntimeError(f"Resend API error {error.code}: {body}") from error
