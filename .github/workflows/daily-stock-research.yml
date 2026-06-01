@@ -4,6 +4,15 @@ on:
   schedule:
     - cron: "7 13,14 * * *"
   workflow_dispatch:
+    inputs:
+      send_live:
+        description: "Send a live digest now instead of a dry-run preview"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 permissions:
   contents: read
@@ -32,5 +41,12 @@ jobs:
         run: PYTHONPATH=src python3 -m nick_engine.daily_digest
 
       - name: Preview manual run
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && inputs.send_live != 'true'
         run: PYTHONPATH=src python3 -m nick_engine.daily_digest --dry-run --force
+
+      - name: Send manual live digest
+        if: github.event_name == 'workflow_dispatch' && inputs.send_live == 'true'
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || secrets.RESEARCH_ENGINE }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+        run: PYTHONPATH=src python3 -m nick_engine.daily_digest --force
