@@ -51,7 +51,10 @@ class ResendClientTests(unittest.TestCase):
         self.assertEqual({"id": "email_123"}, response)
         self.assertEqual("https://api.resend.com/emails", captured["url"])
         self.assertEqual("Bearer re_test", captured["headers"]["Authorization"])
-        self.assertEqual("nick-research-2026-06-01-marko-advertra-ca", captured["headers"]["Idempotency-key"])
+        self.assertRegex(
+            captured["headers"]["Idempotency-key"],
+            r"^nick-research-2026-06-01-marko-advertra-ca-[0-9a-f]{12}$",
+        )
         self.assertEqual(["marko@advertra.ca"], captured["payload"]["to"])
         self.assertEqual("Morning", captured["payload"]["subject"])
         self.assertEqual(20, captured["timeout"])
