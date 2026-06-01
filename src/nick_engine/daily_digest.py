@@ -518,8 +518,8 @@ def build_daily_digest(
     html_sections = "".join(_html_section(track, report) for track, report in reports)
     text_sections = "\n\n---\n\n".join(_text_section(track, report) for track, report in reports)
     notice = (
-        "Research watchlist only. This is a fixture-backed seed snapshot, not live market data "
-        "and not a buy/sell recommendation."
+        "Research watchlist only. This uses public-source live enrichment where available "
+        "and remains a research screen, not a buy/sell recommendation."
     )
     excluded_note = _excluded_note()
     return DailyDigest(
