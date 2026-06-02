@@ -2,7 +2,10 @@ name: Daily Stock Research Email
 
 on:
   schedule:
-    - cron: "7 13,14 * * *"
+    # GitHub cron is UTC. 13:00 UTC is 9 AM Toronto during daylight time;
+    # 14:00 UTC is 9 AM Toronto during standard time. The app gates by
+    # America/Toronto, so only the matching run sends and the other skips.
+    - cron: "0 13,14 * * *"
   workflow_dispatch:
     inputs:
       send_live:
