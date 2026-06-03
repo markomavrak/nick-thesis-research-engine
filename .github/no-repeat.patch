@@ -1,17 +1,3 @@
-From a038119d509aefd4219e1322f173b3abaf14c5e2 Mon Sep 17 00:00:00 2001
-From: Marko Mavrak <markomav@mac.home>
-Date: Wed, 3 Jun 2026 10:13:36 -0400
-Subject: [PATCH] Persist digest ticker history
-
----
- .github/digest-history.json                   |  31 ++++
- .github/workflows/daily-stock-research.yml    |  15 +-
- .../workflows/manual-live-digest-trigger.yml  |  14 +-
- src/nick_engine/daily_digest.py               | 160 +++++++++++++++--
- tests/test_daily_digest.py                    | 164 +++++++++++++++---
- 5 files changed, 344 insertions(+), 40 deletions(-)
- create mode 100644 .github/digest-history.json
-
 diff --git a/.github/digest-history.json b/.github/digest-history.json
 new file mode 100644
 index 0000000..c882fd8
@@ -49,65 +35,6 @@ index 0000000..c882fd8
 +  ],
 +  "version": 1
 +}
-diff --git a/.github/workflows/daily-stock-research.yml b/.github/workflows/daily-stock-research.yml
-index a5fd835..e0ff529 100644
---- a/.github/workflows/daily-stock-research.yml
-+++ b/.github/workflows/daily-stock-research.yml
-@@ -18,7 +18,7 @@ on:
-           - "true"
- 
- permissions:
--  contents: read
-+  contents: write
- 
- jobs:
-   daily-digest:
-@@ -55,3 +55,16 @@ jobs:
-           RESEND_FROM_EMAIL: Market Research <onboarding@resend.dev>
-           DIGEST_RECIPIENTS: marko@advertra.ca
-         run: PYTHONPATH=src python3 -m nick_engine.daily_digest --force
-+
-+      - name: Persist digest history
-+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.send_live == 'true')
-+        run: |
-+          if [ -z "$(git status --porcelain -- .github/digest-history.json)" ]; then
-+            echo "No digest history changes."
-+            exit 0
-+          fi
-+          git config user.name "github-actions[bot]"
-+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-+          git add .github/digest-history.json
-+          git commit -m "Update digest history [skip ci]"
-+          git push
-diff --git a/.github/workflows/manual-live-digest-trigger.yml b/.github/workflows/manual-live-digest-trigger.yml
-index 4a134a7..6f8d514 100644
---- a/.github/workflows/manual-live-digest-trigger.yml
-+++ b/.github/workflows/manual-live-digest-trigger.yml
-@@ -6,7 +6,7 @@ on:
-       - ".github/live-digest-trigger.txt"
- 
- permissions:
--  contents: read
-+  contents: write
- 
- jobs:
-   send-live-digest:
-@@ -30,3 +30,15 @@ jobs:
-           RESEND_FROM_EMAIL: Market Research <onboarding@resend.dev>
-           DIGEST_RECIPIENTS: marko@advertra.ca
-         run: PYTHONPATH=src python3 -m nick_engine.daily_digest --force
-+
-+      - name: Persist digest history
-+        run: |
-+          if [ -z "$(git status --porcelain -- .github/digest-history.json)" ]; then
-+            echo "No digest history changes."
-+            exit 0
-+          fi
-+          git config user.name "github-actions[bot]"
-+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-+          git add .github/digest-history.json
-+          git commit -m "Update digest history [skip ci]"
-+          git push
 diff --git a/src/nick_engine/daily_digest.py b/src/nick_engine/daily_digest.py
 index db0f665..8f2889e 100644
 --- a/src/nick_engine/daily_digest.py
@@ -570,5 +497,3 @@ index 3004afa..0273158 100644
  
  if __name__ == "__main__":
      unittest.main()
--- 
-2.39.5 (Apple Git-154)
