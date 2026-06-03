@@ -1,1 +1,2 @@
-manual live digest trigger: 2026-06-02T09:00:00-04:00
+triggered_at=2026-06-03T10:30:00-04:00
+purpose=send-live-no-repeat-digest-after-advertra-sender-update
