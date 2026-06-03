@@ -14,14 +14,26 @@
         "TEX",
         "MTW"
       ]
+    },
+    {
+      "sent_date": "2026-06-03",
+      "subject": "Market Research Digest | Hidden Gems | 2026-06-03",
+      "tickers": [
+        "ALG",
+        "HEES",
+        "HRI"
+      ]
     }
   ],
   "sent_tickers": [
     "ADTN",
+    "ALG",
     "ASTE",
     "CAMT",
     "EXTR",
     "FORM",
+    "HEES",
+    "HRI",
     "LASR",
     "MRAM",
     "MTW",
