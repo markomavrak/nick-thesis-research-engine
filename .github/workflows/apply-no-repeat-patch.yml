@@ -21,13 +21,13 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Apply no-repeat patch and test
+      - name: Apply no-repeat code patch and test
         run: |
           git apply --index .github/no-repeat.patch
           PYTHONPATH=src python3 -m unittest discover -s tests -v
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Persist digest ticker history"
-          git rm .github/no-repeat.patch .github/apply-no-repeat-trigger.txt .github/workflows/apply-no-repeat-patch.yml
-          git commit -m "Remove temporary no-repeat patch workflow [skip ci]"
+          git rm .github/no-repeat.patch .github/apply-no-repeat-trigger.txt
+          git commit -m "Remove temporary no-repeat patch files [skip ci]"
           git push
