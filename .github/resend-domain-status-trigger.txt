@@ -1,2 +1,0 @@
-triggered_at=2026-06-03T10:27:00-04:00
-purpose=list-existing-resend-domains
