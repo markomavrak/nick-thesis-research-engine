@@ -1,0 +1,37 @@
+name: Temporary Apply Expanded Universe Patch
+
+on:
+  push:
+    paths:
+      - ".github/expand-universe-trigger.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  apply-expanded-universe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Apply patch
+        run: git apply .github/expand-universe.patch
+
+      - name: Run tests
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -v
+
+      - name: Commit expanded universe
+        run: |
+          rm -f .github/expand-universe.patch .github/expand-universe-trigger.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/nick_engine/daily_digest.py tests/test_daily_digest.py .github/expand-universe.patch .github/expand-universe-trigger.txt
+          git commit -m "Expand no-repeat digest candidate universe [skip ci]"
+          git push
