@@ -14,14 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Check Advertra domain status in Resend
+      - name: Check Resend domains
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || secrets.RESEARCH_ENGINE }}
         run: |
           python3 <<'PY'
           import json
           import os
-          import sys
           import urllib.error
           import urllib.request
 
@@ -36,7 +35,7 @@ jobs:
               "User-Agent": "codex-resend-domain-status/1.0",
           }
 
-          def call(method, path, payload=None):
+          def call(method, path, payload=None, raise_errors=True):
               data = None
               if payload is not None:
                   data = json.dumps(payload).encode("utf-8")
@@ -49,46 +48,63 @@ jobs:
               try:
                   with urllib.request.urlopen(request, timeout=30) as response:
                       body = response.read().decode("utf-8")
-                      return json.loads(body) if body else {}
+                      return response.status, json.loads(body) if body else {}
               except urllib.error.HTTPError as exc:
                   body = exc.read().decode("utf-8", errors="replace")
                   print(f"HTTP {exc.code} from {method} {path}: {body}")
-                  raise
+                  if raise_errors:
+                      raise
+                  try:
+                      return exc.code, json.loads(body)
+                  except json.JSONDecodeError:
+                      return exc.code, {"raw": body}
+
+          def print_records(detail):
+              records = detail.get("records", [])
+              if not records:
+                  print("  No DNS records returned.")
+                  return
+              print("  DNS records:")
+              for record in records:
+                  priority = record.get("priority")
+                  priority_text = f" priority={priority}" if priority is not None else ""
+                  print(
+                      f"  - {record.get('record')} {record.get('type')} "
+                      f"name={record.get('name')} value={record.get('value')} "
+                      f"status={record.get('status')}{priority_text}"
+                  )
+
+          _, listed = call("GET", "/domains")
+          domains = listed.get("data", []) if isinstance(listed, dict) else []
+
+          print("Resend domains in this account:")
+          if not domains:
+              print("- none")
+          for domain in domains:
+              print(
+                  f"- {domain.get('name')} | id={domain.get('id')} | "
+                  f"status={domain.get('status')} | region={domain.get('region')}"
+              )
+
+          for domain in domains:
+              _, detail = call("GET", f"/domains/{domain.get('id')}")
+              print(f"Details for {detail.get('name')} | status={detail.get('status')} | region={detail.get('region')}")
+              print_records(detail)
 
           target_name = "advertra.ca"
-          listed = call("GET", "/domains")
-          domains = listed.get("data", []) if isinstance(listed, dict) else []
-          domain = next((item for item in domains if item.get("name") == target_name), None)
-
-          if domain is None:
-              print("advertra.ca was not found in Resend. Creating it now.")
-              domain = call("POST", "/domains", {"name": target_name})
+          target = next((item for item in domains if item.get("name") == target_name), None)
+          if target is None:
+              print("advertra.ca is not currently present in this Resend account.")
+              print("Attempting to create advertra.ca to confirm whether the plan permits another domain.")
+              status, created = call("POST", "/domains", {"name": target_name}, raise_errors=False)
+              if status >= 400:
+                  print("advertra.ca create attempt failed; leaving account unchanged.")
+              else:
+                  print(f"advertra.ca created | id={created.get('id')} | status={created.get('status')}")
+                  print_records(created)
           else:
-              print("advertra.ca already exists in Resend.")
-
-          domain_id = domain.get("id")
-          if not domain_id:
-              print(json.dumps(domain, indent=2))
-              raise SystemExit("Resend did not return a domain id")
-
-          detail = call("GET", f"/domains/{domain_id}")
-          print(f"Domain: {detail.get('name')} | id: {domain_id} | status: {detail.get('status')} | region: {detail.get('region')}")
-
-          if detail.get("status") != "verified":
-              print("Requesting Resend DNS verification check now.")
-              verify_result = call("POST", f"/domains/{domain_id}/verify")
+              print("advertra.ca exists. Requesting verification check.")
+              _, verify_result = call("POST", f"/domains/{target.get('id')}/verify")
               print("Verify endpoint response:")
               print(json.dumps({k: v for k, v in verify_result.items() if k != "records"}, indent=2))
-              detail = call("GET", f"/domains/{domain_id}")
-              print(f"Status after verify request: {detail.get('status')}")
-
-          print("Required DNS records:")
-          for record in detail.get("records", []):
-              priority = record.get("priority")
-              priority_text = f" priority={priority}" if priority is not None else ""
-              print(
-                  f"- {record.get('record')} {record.get('type')} "
-                  f"name={record.get('name')} value={record.get('value')} "
-                  f"status={record.get('status')}{priority_text}"
-              )
           PY
