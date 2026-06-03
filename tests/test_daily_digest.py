@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from datetime import datetime, timezone
@@ -148,17 +149,19 @@ class DailyDigestTests(unittest.TestCase):
                 captured["send_dates"].append(send_date.isoformat())
                 return {"id": f"email_{len(captured['recipients'])}"}
 
-        result = run_daily_digest(
-            now=datetime(2026, 6, 1, 13, 12, tzinfo=timezone.utc),
-            dry_run=False,
-            force=False,
-            environment={
-                "RESEND_API_KEY": "re_test",
-                "RESEND_FROM_EMAIL": "research@example.com",
-            },
-            provider=FixtureResearchProvider(),
-            client_class=FakeClient,
-        )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            result = run_daily_digest(
+                now=datetime(2026, 6, 1, 13, 12, tzinfo=timezone.utc),
+                dry_run=False,
+                force=False,
+                environment={
+                    "RESEND_API_KEY": "re_test",
+                    "RESEND_FROM_EMAIL": "research@example.com",
+                },
+                provider=FixtureResearchProvider(),
+                client_class=FakeClient,
+                history_path=Path(temporary_directory) / "digest-history.json",
+            )
 
         self.assertEqual("sent", result.status)
         self.assertEqual(
@@ -180,21 +183,136 @@ class DailyDigestTests(unittest.TestCase):
                 captured["recipients"].append(to_email)
                 return {"id": f"email_{len(captured['recipients'])}"}
 
-        result = run_daily_digest(
-            now=datetime(2026, 6, 1, 13, 12, tzinfo=timezone.utc),
-            dry_run=False,
-            force=False,
-            environment={
-                "RESEND_API_KEY": "re_test",
-                "RESEND_FROM_EMAIL": "research@example.com",
-                "DIGEST_RECIPIENTS": "marko@advertra.ca",
-            },
-            provider=FixtureResearchProvider(),
-            client_class=FakeClient,
-        )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            result = run_daily_digest(
+                now=datetime(2026, 6, 1, 13, 12, tzinfo=timezone.utc),
+                dry_run=False,
+                force=False,
+                environment={
+                    "RESEND_API_KEY": "re_test",
+                    "RESEND_FROM_EMAIL": "research@example.com",
+                    "DIGEST_RECIPIENTS": "marko@advertra.ca",
+                },
+                provider=FixtureResearchProvider(),
+                client_class=FakeClient,
+                history_path=Path(temporary_directory) / "digest-history.json",
+            )
 
         self.assertEqual("sent", result.status)
         self.assertEqual(["marko@advertra.ca"], captured["recipients"])
+
+    def test_dry_run_excludes_previously_sent_history_tickers(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            history_path = Path(temporary_directory) / "digest-history.json"
+            history_path.write_text(
+                json.dumps({"sent_tickers": ["ADTN", "FORM", "ASTE"]}),
+                encoding="utf-8",
+            )
+
+            result = run_daily_digest(
+                now=datetime(2026, 6, 1, 13, 12, tzinfo=timezone.utc),
+                dry_run=True,
+                force=False,
+                environment={},
+                output_directory=Path(temporary_directory),
+                provider=FixtureResearchProvider(),
+                history_path=history_path,
+            )
+
+            preview = Path(temporary_directory) / "daily-stock-research-preview.html"
+            body = preview.read_text(encoding="utf-8")
+
+            self.assertEqual("dry-run", result.status)
+            self.assertNotIn("ADTN - Adtran Holdings", body)
+            self.assertNotIn("FORM - FormFactor", body)
+            self.assertNotIn("ASTE - Astec Industries", body)
+            self.assertIn("EXTR - Extreme Networks", body)
+            self.assertIn("CAMT - Camtek", body)
+            self.assertIn("TEX - Terex", body)
+
+    def test_live_run_records_sent_tickers_after_successful_send(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            history_path = Path(temporary_directory) / "digest-history.json"
+
+            class FakeClient:
+                def __init__(self, *, api_key, from_email):
+                    pass
+
+                def send_digest(self, digest, *, to_email, send_date):
+                    return {"id": f"email_{to_email}"}
+
+            result = run_daily_digest(
+                now=datetime(2026, 6, 1, 13, 12, tzinfo=timezone.utc),
+                dry_run=False,
+                force=False,
+                environment={
+                    "RESEND_API_KEY": "re_test",
+                    "RESEND_FROM_EMAIL": "research@example.com",
+                },
+                provider=FixtureResearchProvider(),
+                client_class=FakeClient,
+                history_path=history_path,
+            )
+
+            history = json.loads(history_path.read_text(encoding="utf-8"))
+
+            self.assertEqual("sent", result.status)
+            self.assertIn("ADTN", history["sent_tickers"])
+            self.assertIn("FORM", history["sent_tickers"])
+            self.assertIn("TEX", history["sent_tickers"])
+            self.assertEqual("2026-06-01", history["runs"][0]["sent_date"])
+
+    def test_live_run_skips_when_history_excludes_all_candidates(self):
+        captured = {"send_count": 0}
+
+        class FakeClient:
+            def __init__(self, *, api_key, from_email):
+                pass
+
+            def send_digest(self, digest, *, to_email, send_date):
+                captured["send_count"] += 1
+                return {"id": "email_1"}
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            history_path = Path(temporary_directory) / "digest-history.json"
+            history_path.write_text(
+                json.dumps(
+                    {
+                        "sent_tickers": [
+                            "ADTN",
+                            "EXTR",
+                            "LASR",
+                            "FORM",
+                            "CAMT",
+                            "MRAM",
+                            "ASTE",
+                            "TEX",
+                            "MTW",
+                            "ALG",
+                            "HEES",
+                            "HRI",
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = run_daily_digest(
+                now=datetime(2026, 6, 1, 13, 12, tzinfo=timezone.utc),
+                dry_run=False,
+                force=False,
+                environment={
+                    "RESEND_API_KEY": "re_test",
+                    "RESEND_FROM_EMAIL": "research@example.com",
+                },
+                provider=FixtureResearchProvider(),
+                client_class=FakeClient,
+                history_path=history_path,
+            )
+
+        self.assertEqual("skipped", result.status)
+        self.assertIn("no fresh high-scoring tickers", result.message)
+        self.assertEqual(0, captured["send_count"])
 
 
 if __name__ == "__main__":
