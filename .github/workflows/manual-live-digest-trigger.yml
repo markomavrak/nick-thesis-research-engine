@@ -6,7 +6,7 @@ on:
       - ".github/live-digest-trigger.txt"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   send-live-digest:
@@ -30,3 +30,15 @@ jobs:
           RESEND_FROM_EMAIL: Market Research <onboarding@resend.dev>
           DIGEST_RECIPIENTS: marko@advertra.ca
         run: PYTHONPATH=src python3 -m nick_engine.daily_digest --force
+
+      - name: Persist digest history
+        run: |
+          if [ -z "$(git status --porcelain -- .github/digest-history.json)" ]; then
+            echo "No digest history changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/digest-history.json
+          git commit -m "Update digest history [skip ci]"
+          git push
