@@ -374,6 +374,581 @@ HIDDEN_GEM_COMPANIES = (
         liquidity="low",
         risk_flags=("micro cap", "indirect exposure"),
     ),
+    CandidateCompany(
+        ticker="CALX",
+        name="Calix",
+        sector="Photonics",
+        industry="Broadband Access Platforms",
+        market_cap_b=2.5,
+        value_chain_layer="L8 connectivity: fiber access and cloud-managed networking",
+        exposure="indirect",
+        thesis_keywords=("ai", "data", "center", "optical", "networking", "connectivity", "bottleneck"),
+        summary=(
+            "Fiber access and cloud-managed networking platform that can catch a bid "
+            "when optical and broadband infrastructure spending broadens below the obvious names."
+        ),
+        catalysts=("Fiber upgrade cycle", "Broadband network refresh orders"),
+        risks=("Carrier spending variability", "Indirect data-center exposure"),
+        invalidation_signals=("Provider capex weakens", "Subscriber platform growth stalls"),
+        evidence=(
+            _evidence("Calix investor relations", "https://investor-relations.calix.com/"),
+            _evidence("Calix SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1406666"),
+        ),
+        liquidity="medium",
+        risk_flags=("carrier capex sensitivity", "indirect exposure"),
+    ),
+    CandidateCompany(
+        ticker="MTSI",
+        name="MACOM Technology Solutions",
+        sector="Photonics",
+        industry="High-Performance Analog and Optical Semiconductors",
+        market_cap_b=11.0,
+        value_chain_layer="L8 connectivity: optical and high-speed analog components",
+        exposure="direct",
+        thesis_keywords=("ai", "data", "center", "optical", "photonics", "connectivity", "bottleneck"),
+        summary=(
+            "Component supplier with optical, RF, and high-speed analog exposure that can "
+            "benefit as AI network bandwidth demand pulls money into the component layer."
+        ),
+        catalysts=("Optical component demand", "Data-center connectivity design wins"),
+        risks=("Semiconductor cyclicality", "Defense and telecom mix variability"),
+        invalidation_signals=("Datacom orders weaken", "Design-win conversion slows"),
+        evidence=(
+            _evidence("MACOM investor relations", "https://ir.macom.com/"),
+            _evidence("MACOM SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1493594"),
+        ),
+        liquidity="medium",
+        risk_flags=("semiconductor cyclicality",),
+    ),
+    CandidateCompany(
+        ticker="AVNW",
+        name="Aviat Networks",
+        sector="Photonics",
+        industry="Wireless Transport Networking",
+        market_cap_b=0.3,
+        value_chain_layer="L8 connectivity: transport networking adjacency",
+        exposure="indirect",
+        thesis_keywords=("data", "center", "networking", "connectivity", "bottleneck", "infrastructure"),
+        summary=(
+            "Micro-cap transport networking vendor that can screen as a high-risk breadth "
+            "name if bandwidth infrastructure spending moves beyond the clean optical leaders."
+        ),
+        catalysts=("Backhaul upgrade demand", "Network modernization orders"),
+        risks=("Micro-cap liquidity", "Telecom capex sensitivity"),
+        invalidation_signals=("Bookings weaken", "Carrier spending slows"),
+        evidence=(
+            _evidence("Aviat investor relations", "https://investors.aviatnetworks.com/"),
+            _evidence("Aviat SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1377789"),
+        ),
+        liquidity="low",
+        risk_flags=("micro cap", "carrier capex sensitivity"),
+    ),
+    CandidateCompany(
+        ticker="OCC",
+        name="Optical Cable",
+        sector="Photonics",
+        industry="Fiber Optic Cable and Connectivity",
+        market_cap_b=0.03,
+        value_chain_layer="L8 connectivity: fiber optic cable and components",
+        exposure="direct",
+        thesis_keywords=("data", "center", "optical", "networking", "connectivity", "photonics", "bottleneck"),
+        summary=(
+            "Tiny fiber-optic cable and connectivity supplier that belongs only in the "
+            "high-risk breadth bucket when optical infrastructure demand gets speculative."
+        ),
+        catalysts=("Fiber infrastructure orders", "Optical connectivity breadth"),
+        risks=("Very low liquidity", "Micro-cap execution risk"),
+        invalidation_signals=("Revenue growth stalls", "Volume fails to confirm the move"),
+        evidence=(
+            _evidence("Optical Cable investor relations", "https://www.occfiber.com/investor-relations/"),
+            _evidence("Optical Cable SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1000230"),
+        ),
+        liquidity="low",
+        risk_flags=("micro cap", "low liquidity"),
+    ),
+    CandidateCompany(
+        ticker="SMTC",
+        name="Semtech",
+        sector="Photonics",
+        industry="Signal Integrity and Connectivity Semiconductors",
+        market_cap_b=4.0,
+        value_chain_layer="L8 connectivity: signal integrity and high-speed links",
+        exposure="indirect",
+        thesis_keywords=("ai", "data", "center", "connectivity", "networking", "semiconductor", "bottleneck"),
+        summary=(
+            "Connectivity semiconductor name that can participate when the market looks "
+            "past optical module leaders and into signal-integrity suppliers."
+        ),
+        catalysts=("Data-center connectivity refresh", "Signal integrity demand"),
+        risks=("Debt and integration risk", "Mixed end-market exposure"),
+        invalidation_signals=("Connectivity orders slow", "Balance-sheet pressure rises"),
+        evidence=(
+            _evidence("Semtech investor relations", "https://investors.semtech.com/"),
+            _evidence("Semtech SEC filings", "https://www.sec.gov/edgar/browse/?CIK=88941"),
+        ),
+        liquidity="medium",
+        risk_flags=("balance sheet risk", "indirect exposure"),
+    ),
+    CandidateCompany(
+        ticker="PLUS",
+        name="ePlus",
+        sector="Photonics",
+        industry="Technology Solutions and Networking",
+        market_cap_b=2.0,
+        value_chain_layer="L8/L9 adjacency: enterprise networking deployment",
+        exposure="indirect",
+        thesis_keywords=("ai", "data", "center", "networking", "connectivity", "infrastructure", "bottleneck"),
+        summary=(
+            "Smaller IT solutions provider with networking and data-center deployment exposure; "
+            "useful as a second-order breadth read when enterprise AI infrastructure spend broadens."
+        ),
+        catalysts=("Enterprise network refresh", "Data-center infrastructure orders"),
+        risks=("Reseller margin pressure", "Indirect AI exposure"),
+        invalidation_signals=("Product backlog declines", "Gross margins weaken"),
+        evidence=(
+            _evidence("ePlus investor relations", "https://www.eplus.com/investors"),
+            _evidence("ePlus SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1022408"),
+        ),
+        liquidity="medium",
+        risk_flags=("indirect exposure",),
+    ),
+    CandidateCompany(
+        ticker="ICHR",
+        name="Ichor Holdings",
+        sector="Semiconductors",
+        industry="Semiconductor Equipment Subsystems",
+        market_cap_b=1.0,
+        value_chain_layer="L4 equipment: fluid delivery subsystems",
+        exposure="indirect",
+        thesis_keywords=("ai", "semiconductor", "equipment", "advanced", "packaging", "hbm", "bottleneck"),
+        summary=(
+            "Small semicap subsystem supplier that can re-rate when wafer-fab and "
+            "advanced-node equipment orders recover under AI capacity demand."
+        ),
+        catalysts=("Semicap order recovery", "Advanced-node capacity additions"),
+        risks=("Customer concentration", "Semicap cycle timing"),
+        invalidation_signals=("Backlog declines", "WFE spending rolls over"),
+        evidence=(
+            _evidence("Ichor investor relations", "https://ir.ichorsystems.com/"),
+            _evidence("Ichor SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1652535"),
+        ),
+        liquidity="medium",
+        risk_flags=("customer concentration", "semicap cyclicality"),
+    ),
+    CandidateCompany(
+        ticker="ACLS",
+        name="Axcelis Technologies",
+        sector="Semiconductors",
+        industry="Ion Implantation Equipment",
+        market_cap_b=4.0,
+        value_chain_layer="L4 equipment: ion implantation",
+        exposure="indirect",
+        thesis_keywords=("ai", "semiconductor", "equipment", "memory", "hbm", "bottleneck"),
+        summary=(
+            "Ion-implant equipment supplier that can screen as a smaller semicap torque "
+            "name when AI-driven capacity spend rotates down into equipment."
+        ),
+        catalysts=("Equipment order recovery", "Power and memory capacity additions"),
+        risks=("Power semiconductor cycle", "Order lumpiness"),
+        invalidation_signals=("Bookings weaken", "Customer capex delays"),
+        evidence=(
+            _evidence("Axcelis investor relations", "https://investor.axcelis.com/"),
+            _evidence("Axcelis SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1113232"),
+        ),
+        liquidity="medium",
+        risk_flags=("semicap cyclicality",),
+    ),
+    CandidateCompany(
+        ticker="MKSI",
+        name="MKS Instruments",
+        sector="Semiconductors",
+        industry="Semiconductor Process Control Subsystems",
+        market_cap_b=8.0,
+        value_chain_layer="L4 equipment: process control and photonics subsystems",
+        exposure="indirect",
+        thesis_keywords=("ai", "semiconductor", "equipment", "photonics", "advanced", "packaging", "bottleneck"),
+        summary=(
+            "Process-control and photonics subsystem supplier that can benefit when "
+            "advanced manufacturing complexity pulls spend into semicap suppliers."
+        ),
+        catalysts=("Advanced manufacturing demand", "Semicap and photonics recovery orders"),
+        risks=("Leverage from prior acquisition", "Cyclical end markets"),
+        invalidation_signals=("Semicap recovery stalls", "Debt paydown disappoints"),
+        evidence=(
+            _evidence("MKS investor relations", "https://investor.mks.com/"),
+            _evidence("MKS SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1049502"),
+        ),
+        liquidity="medium",
+        risk_flags=("balance sheet risk", "semicap cyclicality"),
+    ),
+    CandidateCompany(
+        ticker="COHU",
+        name="Cohu",
+        sector="Semiconductors",
+        industry="Semiconductor Test Equipment",
+        market_cap_b=1.5,
+        value_chain_layer="L5 packaging and testing: semiconductor test handlers",
+        exposure="indirect",
+        thesis_keywords=("ai", "semiconductor", "testing", "memory", "hbm", "advanced", "packaging", "bottleneck"),
+        summary=(
+            "Smaller test-equipment supplier positioned around semiconductor test intensity; "
+            "the angle is higher complexity as AI chips, memory, and advanced packages scale."
+        ),
+        catalysts=("Test intensity growth", "Advanced package and memory test demand"),
+        risks=("Cyclical test demand", "Customer spending delays"),
+        invalidation_signals=("Orders decline", "Utilization weakens"),
+        evidence=(
+            _evidence("Cohu investor relations", "https://investors.cohu.com/"),
+            _evidence("Cohu SEC filings", "https://www.sec.gov/edgar/browse/?CIK=21535"),
+        ),
+        liquidity="medium",
+        risk_flags=("semicap cyclicality",),
+    ),
+    CandidateCompany(
+        ticker="AEIS",
+        name="Advanced Energy Industries",
+        sector="Semiconductors",
+        industry="Precision Power Conversion",
+        market_cap_b=4.0,
+        value_chain_layer="L4/L7 equipment and power: precision power delivery",
+        exposure="indirect",
+        thesis_keywords=("ai", "semiconductor", "equipment", "power", "advanced", "packaging", "bottleneck"),
+        summary=(
+            "Precision power supplier tied to semiconductor tools and data-center power needs; "
+            "a second-order beneficiary if AI capex keeps stressing power and equipment layers."
+        ),
+        catalysts=("Semicap power demand", "Data-center power conversion orders"),
+        risks=("Industrial cyclicality", "Indirect AI exposure"),
+        invalidation_signals=("Order recovery fades", "Margins compress"),
+        evidence=(
+            _evidence("Advanced Energy investor relations", "https://ir.advancedenergy.com/"),
+            _evidence("Advanced Energy SEC filings", "https://www.sec.gov/edgar/browse/?CIK=927003"),
+        ),
+        liquidity="medium",
+        risk_flags=("indirect exposure",),
+    ),
+    CandidateCompany(
+        ticker="KLIC",
+        name="Kulicke and Soffa",
+        sector="Semiconductors",
+        industry="Semiconductor Assembly Equipment",
+        market_cap_b=2.5,
+        value_chain_layer="L5 packaging and testing: assembly equipment",
+        exposure="indirect",
+        thesis_keywords=("ai", "semiconductor", "advanced", "packaging", "hbm", "testing", "bottleneck"),
+        summary=(
+            "Assembly-equipment supplier that can matter if money rotates from HBM "
+            "leaders into packaging and assembly bottleneck beneficiaries."
+        ),
+        catalysts=("Advanced packaging adoption", "Assembly equipment order recovery"),
+        risks=("Packaging cycle timing", "China exposure"),
+        invalidation_signals=("Bookings fail to recover", "Advanced packaging demand slows"),
+        evidence=(
+            _evidence("Kulicke and Soffa investor relations", "https://investor.kns.com/"),
+            _evidence("Kulicke and Soffa SEC filings", "https://www.sec.gov/edgar/browse/?CIK=56978"),
+        ),
+        liquidity="medium",
+        risk_flags=("semicap cyclicality",),
+    ),
+    CandidateCompany(
+        ticker="UCTT",
+        name="Ultra Clean Holdings",
+        sector="Semiconductors",
+        industry="Semiconductor Subsystems and Services",
+        market_cap_b=1.5,
+        value_chain_layer="L4 equipment: critical subsystems and services",
+        exposure="indirect",
+        thesis_keywords=("ai", "semiconductor", "equipment", "advanced", "packaging", "memory", "bottleneck"),
+        summary=(
+            "Semicap subsystem and services supplier with small-cap torque to wafer-fab "
+            "equipment recovery and AI capacity additions."
+        ),
+        catalysts=("WFE order recovery", "Critical subsystem demand"),
+        risks=("Customer concentration", "Semicap cyclicality"),
+        invalidation_signals=("Major customer orders weaken", "Service demand slows"),
+        evidence=(
+            _evidence("Ultra Clean investor relations", "https://uct.com/investors/"),
+            _evidence("Ultra Clean SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1275014"),
+        ),
+        liquidity="medium",
+        risk_flags=("customer concentration", "semicap cyclicality"),
+    ),
+    CandidateCompany(
+        ticker="VICR",
+        name="Vicor",
+        sector="Semiconductors",
+        industry="Power Modules",
+        market_cap_b=2.0,
+        value_chain_layer="L7 power semiconductors: high-density power modules",
+        exposure="indirect",
+        thesis_keywords=("ai", "data", "center", "power", "semiconductor", "memory", "bottleneck"),
+        summary=(
+            "High-density power module supplier that can become relevant when AI racks "
+            "push power-delivery constraints into the tradeable bottleneck list."
+        ),
+        catalysts=("AI rack power density demand", "Power module design wins"),
+        risks=("Customer concentration", "Patent and execution risk"),
+        invalidation_signals=("Design-win momentum slows", "Revenue growth fails to recover"),
+        evidence=(
+            _evidence("Vicor investor relations", "https://investor.vicorpower.com/"),
+            _evidence("Vicor SEC filings", "https://www.sec.gov/edgar/browse/?CIK=751978"),
+        ),
+        liquidity="medium",
+        risk_flags=("customer concentration",),
+    ),
+    CandidateCompany(
+        ticker="DIOD",
+        name="Diodes",
+        sector="Semiconductors",
+        industry="Analog and Discrete Semiconductors",
+        market_cap_b=3.0,
+        value_chain_layer="L7 power and analog semiconductors",
+        exposure="indirect",
+        thesis_keywords=("ai", "semiconductor", "power", "data", "center", "memory", "bottleneck"),
+        summary=(
+            "Analog and discrete semiconductor supplier that screens as a smaller "
+            "power-adjacent beneficiary if AI infrastructure demand broadens into supporting silicon."
+        ),
+        catalysts=("Power and analog order recovery", "Data-center support silicon demand"),
+        risks=("Broad industrial cycle", "Indirect AI exposure"),
+        invalidation_signals=("Channel inventory rises", "Bookings weaken"),
+        evidence=(
+            _evidence("Diodes investor relations", "https://investor.diodes.com/"),
+            _evidence("Diodes SEC filings", "https://www.sec.gov/edgar/browse/?CIK=29002"),
+        ),
+        liquidity="medium",
+        risk_flags=("indirect exposure",),
+    ),
+    CandidateCompany(
+        ticker="PI",
+        name="Impinj",
+        sector="Semiconductors",
+        industry="RAIN RFID Semiconductors",
+        market_cap_b=3.0,
+        value_chain_layer="L2/L7 edge connectivity silicon adjacency",
+        exposure="indirect",
+        thesis_keywords=("ai", "semiconductor", "connectivity", "data", "infrastructure", "bottleneck"),
+        summary=(
+            "RFID semiconductor platform with data-capture infrastructure exposure; "
+            "not an HBM name, but a smaller semiconductor momentum candidate when breadth expands."
+        ),
+        catalysts=("Platform adoption", "Semiconductor breadth and fresh orders"),
+        risks=("Indirect thesis fit", "Valuation sensitivity"),
+        invalidation_signals=("Endpoint IC demand weakens", "Platform adoption slows"),
+        evidence=(
+            _evidence("Impinj investor relations", "https://investors.impinj.com/"),
+            _evidence("Impinj SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1114995"),
+        ),
+        liquidity="medium",
+        risk_flags=("indirect exposure",),
+    ),
+    CandidateCompany(
+        ticker="NVMI",
+        name="Nova",
+        sector="Semiconductors",
+        industry="Semiconductor Metrology",
+        market_cap_b=6.0,
+        value_chain_layer="L5 packaging and testing: metrology and process control",
+        exposure="indirect",
+        thesis_keywords=("ai", "semiconductor", "metrology", "advanced", "packaging", "hbm", "bottleneck"),
+        summary=(
+            "Metrology supplier tied to process complexity in advanced nodes and packaging; "
+            "a clean second-order screen when AI manufacturing bottlenecks get bid."
+        ),
+        catalysts=("Metrology intensity growth", "Advanced packaging and node complexity"),
+        risks=("Semicap multiple compression", "Order cyclicality"),
+        invalidation_signals=("Metrology orders slow", "Advanced-node capex weakens"),
+        evidence=(
+            _evidence("Nova investor relations", "https://www.novami.com/investors/"),
+            _evidence("Nova SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1109345"),
+        ),
+        liquidity="medium",
+        risk_flags=("semicap cyclicality",),
+    ),
+    CandidateCompany(
+        ticker="OSK",
+        name="Oshkosh",
+        sector="Industrials",
+        industry="Specialty Vehicles and Access Equipment",
+        market_cap_b=7.0,
+        value_chain_layer="second-order: access equipment and specialty vehicles",
+        exposure="indirect",
+        thesis_keywords=("construction", "equipment", "infrastructure", "machinery", "demand"),
+        summary=(
+            "Specialty vehicle and access-equipment manufacturer with JLG exposure; "
+            "a less obvious way to monitor construction equipment and fleet demand."
+        ),
+        catalysts=("Access equipment demand", "Infrastructure and fleet replacement orders"),
+        risks=("Cyclical construction demand", "Defense and specialty vehicle mix"),
+        invalidation_signals=("Access equipment orders weaken", "Fleet replacement slows"),
+        evidence=(
+            _evidence("Oshkosh investor relations", "https://investors.oshkoshcorp.com/"),
+            _evidence("Oshkosh SEC filings", "https://www.sec.gov/edgar/browse/?CIK=775158"),
+        ),
+        liquidity="medium",
+        risk_flags=("cyclical",),
+    ),
+    CandidateCompany(
+        ticker="TITN",
+        name="Titan Machinery",
+        sector="Industrials",
+        industry="Equipment Dealer",
+        market_cap_b=0.5,
+        value_chain_layer="second-order: construction and agriculture equipment dealership",
+        exposure="indirect",
+        thesis_keywords=("construction", "equipment", "infrastructure", "machinery", "demand"),
+        summary=(
+            "Equipment dealer with operating torque to machinery demand, used-equipment pricing, "
+            "and fleet replacement behavior rather than OEM headline multiple expansion."
+        ),
+        catalysts=("Equipment replacement cycle", "Construction machinery demand"),
+        risks=("Dealer inventory swings", "Agriculture cycle exposure"),
+        invalidation_signals=("Inventories rise", "Equipment margins compress"),
+        evidence=(
+            _evidence("Titan Machinery investor relations", "https://investors.titanmachinery.com/"),
+            _evidence("Titan Machinery SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1409171"),
+        ),
+        liquidity="medium",
+        risk_flags=("small cap", "dealer inventory risk"),
+    ),
+    CandidateCompany(
+        ticker="PRIM",
+        name="Primoris Services",
+        sector="Industrials",
+        industry="Infrastructure Construction Services",
+        market_cap_b=4.0,
+        value_chain_layer="second-order: infrastructure contractor",
+        exposure="indirect",
+        thesis_keywords=("construction", "equipment", "infrastructure", "demand", "project"),
+        summary=(
+            "Infrastructure contractor that can benefit from the same project backlog "
+            "that pulls construction equipment utilization, rentals, and fleet replacement higher."
+        ),
+        catalysts=("Infrastructure backlog", "Project award momentum"),
+        risks=("Project execution", "Labor and cost inflation"),
+        invalidation_signals=("Backlog conversion weakens", "Margins deteriorate"),
+        evidence=(
+            _evidence("Primoris investor relations", "https://investor.prim.com/"),
+            _evidence("Primoris SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1361538"),
+        ),
+        liquidity="medium",
+        risk_flags=("project execution",),
+    ),
+    CandidateCompany(
+        ticker="STRL",
+        name="Sterling Infrastructure",
+        sector="Industrials",
+        industry="Infrastructure and Site Development",
+        market_cap_b=5.0,
+        value_chain_layer="second-order: site development and infrastructure buildout",
+        exposure="indirect",
+        thesis_keywords=("construction", "equipment", "infrastructure", "demand", "project"),
+        summary=(
+            "Infrastructure and site-development contractor with data-center and civil exposure; "
+            "a demand-side read-through for equipment utilization and construction intensity."
+        ),
+        catalysts=("Data-center site work", "Infrastructure backlog and awards"),
+        risks=("Execution risk", "Valuation sensitivity after strong runs"),
+        invalidation_signals=("Awards slow", "Margins normalize lower"),
+        evidence=(
+            _evidence("Sterling investor relations", "https://investor.strlco.com/"),
+            _evidence("Sterling SEC filings", "https://www.sec.gov/edgar/browse/?CIK=874238"),
+        ),
+        liquidity="medium",
+        risk_flags=("project execution",),
+    ),
+    CandidateCompany(
+        ticker="ROAD",
+        name="Construction Partners",
+        sector="Industrials",
+        industry="Roadway Construction",
+        market_cap_b=5.0,
+        value_chain_layer="second-order: road construction and materials",
+        exposure="indirect",
+        thesis_keywords=("construction", "equipment", "infrastructure", "roadbuilding", "demand"),
+        summary=(
+            "Roadway construction platform that can benefit when public works and roadbuilding "
+            "activity drive equipment utilization and asphalt/material demand."
+        ),
+        catalysts=("Roadbuilding project demand", "Public infrastructure awards"),
+        risks=("Weather and project timing", "Materials cost pressure"),
+        invalidation_signals=("Bid activity weakens", "Margins compress"),
+        evidence=(
+            _evidence("Construction Partners investor relations", "https://ir.constructionpartners.net/"),
+            _evidence("Construction Partners SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1718227"),
+        ),
+        liquidity="medium",
+        risk_flags=("project timing",),
+    ),
+    CandidateCompany(
+        ticker="LNN",
+        name="Lindsay",
+        sector="Industrials",
+        industry="Infrastructure and Irrigation Equipment",
+        market_cap_b=1.5,
+        value_chain_layer="second-order: road safety and infrastructure equipment",
+        exposure="indirect",
+        thesis_keywords=("construction", "equipment", "infrastructure", "machinery", "demand"),
+        summary=(
+            "Infrastructure and irrigation equipment company with a road-safety segment; "
+            "smaller, less crowded, and tied to municipal and infrastructure spend."
+        ),
+        catalysts=("Infrastructure equipment orders", "Road safety project demand"),
+        risks=("Agriculture cycle exposure", "Municipal budget timing"),
+        invalidation_signals=("Infrastructure orders weaken", "Dealer demand slows"),
+        evidence=(
+            _evidence("Lindsay investor relations", "https://www.lindsay.com/usca/en/investor-relations/"),
+            _evidence("Lindsay SEC filings", "https://www.sec.gov/edgar/browse/?CIK=836157"),
+        ),
+        liquidity="medium",
+        risk_flags=("niche market",),
+    ),
+    CandidateCompany(
+        ticker="ATKR",
+        name="Atkore",
+        sector="Industrials",
+        industry="Electrical Infrastructure Products",
+        market_cap_b=2.5,
+        value_chain_layer="second-order: electrical infrastructure for construction",
+        exposure="indirect",
+        thesis_keywords=("construction", "equipment", "infrastructure", "data", "center", "demand"),
+        summary=(
+            "Electrical infrastructure products supplier tied to commercial construction, "
+            "grid work, and data-center buildouts that can move with infrastructure capex."
+        ),
+        catalysts=("Data-center electrical demand", "Commercial construction infrastructure orders"),
+        risks=("Steel/input pricing", "Nonresidential construction cycle"),
+        invalidation_signals=("Electrical product demand weakens", "Margins compress"),
+        evidence=(
+            _evidence("Atkore investor relations", "https://investors.atkore.com/"),
+            _evidence("Atkore SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1666138"),
+        ),
+        liquidity="medium",
+        risk_flags=("input cost sensitivity",),
+    ),
+    CandidateCompany(
+        ticker="IESC",
+        name="IES Holdings",
+        sector="Industrials",
+        industry="Electrical and Infrastructure Services",
+        market_cap_b=4.0,
+        value_chain_layer="second-order: electrical contracting and infrastructure services",
+        exposure="indirect",
+        thesis_keywords=("construction", "equipment", "infrastructure", "data", "center", "demand"),
+        summary=(
+            "Electrical contractor and infrastructure services company with exposure to "
+            "data-center and nonresidential buildout, a demand-side cousin of equipment utilization."
+        ),
+        catalysts=("Data-center electrical project demand", "Infrastructure services backlog"),
+        risks=("Project execution", "Labor availability"),
+        invalidation_signals=("Backlog growth slows", "Labor costs pressure margins"),
+        evidence=(
+            _evidence("IES Holdings investor relations", "https://www.ies-co.com/investor-relations"),
+            _evidence("IES Holdings SEC filings", "https://www.sec.gov/edgar/browse/?CIK=1048268"),
+        ),
+        liquidity="medium",
+        risk_flags=("project execution",),
+    ),
 )
 
 

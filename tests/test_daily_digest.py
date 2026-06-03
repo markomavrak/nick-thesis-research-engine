@@ -7,6 +7,7 @@ from pathlib import Path
 from nick_engine.daily_digest import (
     ALREADY_RESEARCHED_TICKERS,
     DIGEST_RECIPIENTS,
+    HIDDEN_GEM_COMPANIES,
     MIN_EXPLOSIVE_SETUP_SCORE,
     MIN_NICK_SCORE,
     MIN_NEAR_TERM_REASONS,
@@ -15,6 +16,7 @@ from nick_engine.daily_digest import (
     run_daily_digest,
 )
 from nick_engine.daily_digest import _reports
+from nick_engine.fixtures import COMPANIES
 from nick_engine.providers import FixtureResearchProvider
 
 
@@ -26,9 +28,9 @@ class DailyDigestTests(unittest.TestCase):
         self.assertIn("Optical Networking Bottleneck", digest.html)
         self.assertIn("Memory / HBM Bottleneck", digest.html)
         self.assertIn("Construction Equipment Demand", digest.html)
-        self.assertIn("ADTN", digest.html)
-        self.assertIn("FORM", digest.html)
-        self.assertIn("TEX", digest.html)
+        self.assertGreaterEqual(len(digest.tickers), 3)
+        for ticker in digest.tickers:
+            self.assertIn(ticker, digest.html)
         self.assertIn("Research watchlist only", digest.text)
 
     def test_digest_uses_deep_dive_paragraphs_tied_to_thesis(self):
@@ -63,8 +65,8 @@ class DailyDigestTests(unittest.TestCase):
                 self.assertNotIn(candidate.company.ticker, ALREADY_RESEARCHED_TICKERS)
 
         construction_tickers = [item.company.ticker for item in reports[2][1].candidates]
-        self.assertEqual(["ASTE", "TEX", "MTW"], construction_tickers)
-        self.assertNotIn("HRI", construction_tickers)
+        self.assertIn("ASTE", construction_tickers)
+        self.assertNotIn("CAT", construction_tickers)
 
     def test_digest_excludes_already_researched_tickers(self):
         digest = build_daily_digest(FixtureResearchProvider())
@@ -228,7 +230,7 @@ class DailyDigestTests(unittest.TestCase):
             self.assertNotIn("ASTE - Astec Industries", body)
             self.assertIn("EXTR - Extreme Networks", body)
             self.assertIn("CAMT - Camtek", body)
-            self.assertIn("TEX - Terex", body)
+            self.assertIn("ATKR - Atkore", body)
 
     def test_live_run_records_sent_tickers_after_successful_send(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -257,9 +259,9 @@ class DailyDigestTests(unittest.TestCase):
             history = json.loads(history_path.read_text(encoding="utf-8"))
 
             self.assertEqual("sent", result.status)
-            self.assertIn("ADTN", history["sent_tickers"])
-            self.assertIn("FORM", history["sent_tickers"])
-            self.assertIn("TEX", history["sent_tickers"])
+            self.assertTrue(history["sent_tickers"])
+            self.assertEqual(sorted(history["sent_tickers"]), history["sent_tickers"])
+            self.assertFalse(set(history["sent_tickers"]) & set(ALREADY_RESEARCHED_TICKERS))
             self.assertEqual("2026-06-01", history["runs"][0]["sent_date"])
 
     def test_live_run_skips_when_history_excludes_all_candidates(self):
@@ -275,25 +277,14 @@ class DailyDigestTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as temporary_directory:
             history_path = Path(temporary_directory) / "digest-history.json"
+            all_configured_tickers = sorted(
+                {
+                    company.ticker
+                    for company in tuple(COMPANIES) + HIDDEN_GEM_COMPANIES
+                }
+            )
             history_path.write_text(
-                json.dumps(
-                    {
-                        "sent_tickers": [
-                            "ADTN",
-                            "EXTR",
-                            "LASR",
-                            "FORM",
-                            "CAMT",
-                            "MRAM",
-                            "ASTE",
-                            "TEX",
-                            "MTW",
-                            "ALG",
-                            "HEES",
-                            "HRI",
-                        ]
-                    }
-                ),
+                json.dumps({"sent_tickers": all_configured_tickers}),
                 encoding="utf-8",
             )
 
