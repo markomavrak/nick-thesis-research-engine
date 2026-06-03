@@ -8,8 +8,6 @@ on:
 permissions:
   contents: write
 
-actions:
-
 jobs:
   apply-patch:
     runs-on: ubuntu-latest
