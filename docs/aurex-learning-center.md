@@ -1,9 +1,9 @@
 # Aurex Learning Center
 
-The Learning Center is an in-app reference library for becoming fluent in AI
-infrastructure, semiconductor bottlenecks, and supply-chain research language.
-It is built into the Aurex dashboard and is also exposed through the dashboard
-payload.
+The Learning Center is a dedicated Aurex navigation tab for becoming fluent in
+AI infrastructure, semiconductor bottlenecks, and supply-chain research
+language. It is exposed in both the live local terminal and the static public
+site through the dashboard payload.
 
 ## Modules
 
@@ -18,12 +18,20 @@ payload.
 
 Each module includes:
 
+- Dedicated icon key
+- Visual title, visual flow nodes, and short visual caption
 - Plain-English explanation
 - Why the layer matters
 - Stock research angle
 - Hard terms to learn
 - Questions to ask while researching
 - Video or long-form source links
+
+The visual flow is intentionally simple: it shows the physical sequence that
+turns an abstract AI concept into a researchable supply chain. For example,
+the optics module maps laser -> modulator -> fiber -> photodetector -> CPO, and
+the packaging module maps GPU die -> HBM stack -> interposer -> substrate ->
+accelerator module.
 
 ## Research Loop
 
@@ -59,7 +67,14 @@ The dashboard payload includes:
     "title": "AI Value Chain Learning Center",
     "module_count": 8,
     "glossary_count": 33,
-    "modules": [],
+    "modules": [
+      {
+        "icon": "wafer",
+        "visual_title": "Wafer to known-good die",
+        "visual_nodes": ["Silicon wafer", "Lithography", "Etch/deposit"],
+        "visual_caption": "Yield converts a fixed wafer start into more usable AI chips without building a new fab."
+      }
+    ],
     "glossary": []
   }
 }
