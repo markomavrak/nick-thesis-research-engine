@@ -79,6 +79,8 @@ class StaticSiteTests(unittest.TestCase):
         self.assertGreaterEqual(dashboard["candidates"][0]["score"], 80)
         self.assertEqual("AI Value Chain Learning Center", learning["title"])
         self.assertGreaterEqual(learning["module_count"], 8)
+        self.assertTrue(learning["modules"][0]["icon"])
+        self.assertGreaterEqual(len(learning["modules"][0]["visual_nodes"]), 3)
 
     def test_static_shell_uses_relative_json_and_no_local_api_dependency(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -109,6 +111,38 @@ class StaticSiteTests(unittest.TestCase):
         self.assertIn('data-label="Why It Matters"', html)
         self.assertIn('class="cards metric-cards"', html)
         self.assertNotIn('style="grid-template-columns: repeat(3, 1fr)"', html)
+
+    def test_static_shell_uses_tabbed_workflow_navigation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output_dir = Path(directory)
+            write_static_site(output_dir)
+            html = (output_dir / "index.html").read_text()
+
+        self.assertIn('class="app-nav"', html)
+        self.assertIn('data-tab-target="researchTab"', html)
+        self.assertIn('data-tab-target="learningTab"', html)
+        self.assertIn('id="researchTab"', html)
+        self.assertIn('id="learningTab"', html)
+        self.assertIn('class="tab-panel active"', html)
+        self.assertIn("function switchTab", html)
+        self.assertIn("Research Workflow", html)
+        self.assertIn("Screen candidates", html)
+        self.assertIn("Open deep dive", html)
+        self.assertIn("Check activity tape", html)
+
+    def test_static_shell_has_visual_learning_cards_and_richer_deep_dive(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output_dir = Path(directory)
+            write_static_site(output_dir)
+            html = (output_dir / "index.html").read_text()
+
+        self.assertIn("learning-visual", html)
+        self.assertIn("moduleIconSvg", html)
+        self.assertIn("visual_nodes", html)
+        self.assertIn("Thesis Fit", html)
+        self.assertIn("Setup Intelligence", html)
+        self.assertIn("Catalysts", html)
+        self.assertIn("Invalidation", html)
 
     def test_pages_workflow_builds_static_site_for_aurex_domain(self):
         workflow = Path(".github/workflows/aurex-pages.yml").read_text()
