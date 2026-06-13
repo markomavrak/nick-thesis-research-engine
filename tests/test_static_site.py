@@ -92,6 +92,24 @@ class StaticSiteTests(unittest.TestCase):
         self.assertNotIn("127.0.0.1", html)
         self.assertNotIn("localhost", html)
 
+    def test_static_shell_has_phone_first_responsive_layout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output_dir = Path(directory)
+            write_static_site(output_dir)
+            html = (output_dir / "index.html").read_text()
+
+        self.assertIn("overflow-x: hidden", html)
+        self.assertIn("@media (max-width: 640px)", html)
+        self.assertIn(".table-scroll", html)
+        self.assertIn("td::before", html)
+        self.assertIn("content: attr(data-label)", html)
+        self.assertIn("min-height: 44px", html)
+        self.assertIn(".metric-cards", html)
+        self.assertIn('data-label="Ticker"', html)
+        self.assertIn('data-label="Why It Matters"', html)
+        self.assertIn('class="cards metric-cards"', html)
+        self.assertNotIn('style="grid-template-columns: repeat(3, 1fr)"', html)
+
     def test_pages_workflow_builds_static_site_for_aurex_domain(self):
         workflow = Path(".github/workflows/aurex-pages.yml").read_text()
 
