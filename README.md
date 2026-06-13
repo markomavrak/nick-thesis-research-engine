@@ -51,16 +51,24 @@ The default dashboard includes:
 - **Unusual activity tape:** daily volume ratio, one-day price impulse, fresh filings/news, and manual block entries.
 - **Deep-dive panel:** ticker-level thesis fit, setup score, risk tier, catalysts, risks, invalidation checks, filings, news, and source links.
 - **Manual block tape:** quick entry for block prints, dark-pool notes, unusual options blocks, or broker-observed activity.
-- **Learning Center:** plain-English AI infrastructure curriculum, glossary, key research questions, and source links for wafers, packaging, HBM, networking, optics, CPO, power, and chokepoint research.
+- **Learning Center tab:** plain-English AI infrastructure curriculum with inline icons, visual flow diagrams, glossary, key research questions, and source links for wafers, packaging, HBM, networking, optics, CPO, power, and chokepoint research.
 
 True intraday block-trade feeds require a paid market-data provider. Until one is
 connected, Aurex clearly labels block activity as manual and uses public daily
 volume as the unusual-activity proxy.
 
+The default Research Terminal tab is organized as a workflow:
+
+1. Screen candidates by score, setup, layer, and risk.
+2. Open the deep dive for thesis fit, setup intelligence, catalysts, invalidation, and evidence.
+3. Check the unusual activity tape for volume/price/news/filing confirmation.
+4. Record manual block observations in the private local terminal.
+
 ## Learning Center
 
-The terminal includes a built-in AI value-chain reference library. It is designed
-to make the language of AI bottlenecks easy to access while researching stocks:
+The terminal includes a separate Learning Center tab. It is designed to make the
+language of AI bottlenecks easy to access while researching stocks, with a visual
+icon and flow diagram attached to every module:
 
 - Wafers and front-end manufacturing
 - Advanced packaging and chiplets
