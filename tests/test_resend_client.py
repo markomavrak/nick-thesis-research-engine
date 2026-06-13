@@ -40,7 +40,7 @@ class ResendClientTests(unittest.TestCase):
 
         client = ResendClient(
             api_key="re_test",
-            from_email="Nick Research <research@example.com>",
+            from_email="Aurex Research <research@example.com>",
             opener=fake_open,
         )
 
@@ -55,8 +55,9 @@ class ResendClientTests(unittest.TestCase):
         self.assertEqual("Bearer re_test", captured["headers"]["Authorization"])
         self.assertRegex(
             captured["headers"]["Idempotency-key"],
-            r"^nick-research-2026-06-01-marko-advertra-ca-[0-9a-f]{12}$",
+            r"^aurex-research-2026-06-01-marko-advertra-ca-[0-9a-f]{12}$",
         )
+        self.assertEqual("aurex-research-terminal/1.0", captured["headers"]["User-agent"])
         self.assertEqual(["marko@advertra.ca"], captured["payload"]["to"])
         self.assertEqual("Morning", captured["payload"]["subject"])
         self.assertEqual(20, captured["timeout"])

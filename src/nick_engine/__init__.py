@@ -1,4 +1,4 @@
-"""Nick-framework investment thesis research engine."""
+"""Compatibility package for the Aurex Research Terminal."""
 
 from .analyzer import analyze_thesis
 

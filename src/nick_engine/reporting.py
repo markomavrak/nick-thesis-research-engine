@@ -60,7 +60,7 @@ def render_markdown(report: ThesisReport) -> str:
     )
     if not candidates:
         candidates = "No matching companies were found in the configured universe."
-    return f"""# Nick Thesis Research Report
+    return f"""# Aurex Research Report
 
 > Research watchlist only. This report surfaces candidates and evidence; it is
 > not a buy/sell recommendation. Seed market caps and sector snapshots are
@@ -88,8 +88,8 @@ def render_markdown(report: ThesisReport) -> str:
 
 def write_reports(report: ThesisReport, output_directory: Path) -> Tuple[Path, Path]:
     output_directory.mkdir(parents=True, exist_ok=True)
-    json_path = output_directory / "nick-thesis-report.json"
-    markdown_path = output_directory / "nick-thesis-report.md"
+    json_path = output_directory / "aurex-research-report.json"
+    markdown_path = output_directory / "aurex-research-report.md"
     json_path.write_text(json.dumps(report.to_dict(), indent=2) + "\n", encoding="utf-8")
     markdown_path.write_text(render_markdown(report), encoding="utf-8")
     return json_path, markdown_path

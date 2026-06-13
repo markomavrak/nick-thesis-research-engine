@@ -18,7 +18,7 @@ SEC_COMPANYFACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json
 YAHOO_NEWS_RSS_URL = "https://feeds.finance.yahoo.com/rss/2.0/headline?s={ticker}&region=US&lang=en-US"
 STOOQ_DAILY_URL = "https://stooq.com/q/d/l/?s={ticker}.us&i=d"
 EDGAR_DOCUMENT_URL = "https://www.sec.gov/Archives/edgar/data/{cik_unpadded}/{accession_no_dashes}/{document}"
-USER_AGENT = "nick-thesis-research-engine/1.0 marko@advertra.ca"
+USER_AGENT = "aurex-research-terminal/1.0 marko@advertra.ca"
 
 
 @dataclass(frozen=True)

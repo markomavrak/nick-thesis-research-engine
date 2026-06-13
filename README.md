@@ -1,83 +1,143 @@
-# Nick Thesis Research Engine
+# Aurex Research Terminal
 
-A local research CLI that turns an investment thesis into an evidence-backed
-public-company watchlist. It encodes Nick's framework:
+Aurex is a live research terminal for finding and monitoring public-company
+setups that fit a defined market thesis. It combines:
 
-1. Check sector rotation before falling in love with a chart or narrative.
-2. Map the value chain and look beyond the obvious leader.
-3. Prioritize bottlenecks and second-order beneficiaries.
-4. Rank thesis fit, evidence, catalysts, liquidity, and risk separately.
-5. Keep risks and invalidation conditions visible.
+- thesis-fit scoring
+- sector/value-chain mapping
+- hidden-gem candidate screening
+- live public-source enrichment from SEC filings, Yahoo Finance RSS, and Stooq daily OHLCV
+- unusual daily volume and price-impulse flags
+- manual block-activity tape entry
+- daily 9 AM email digest automation
 
-The engine surfaces information. It does not issue buy/sell recommendations,
-position sizes, targets, or stops.
+Aurex surfaces research targets and source trails. It does not issue buy/sell
+recommendations, position sizes, price targets, or stops.
 
-## Run It
+## Run The Live Terminal
 
 Python 3 is the only requirement.
 
 ```bash
-PYTHONPATH=src python3 -m nick_engine.cli \
+PYTHONPATH=src python3 -m aurex --open
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8765
+```
+
+Useful options:
+
+```bash
+PYTHONPATH=src python3 -m aurex \
+  --host 127.0.0.1 \
+  --port 8765 \
+  --cache-seconds 300 \
+  --block-activity-path data/block-activity.json
+```
+
+The terminal auto-refreshes every 5 minutes in the browser. Public-source market
+data is cached server-side so repeated clicks do not hammer free data sources.
+
+## What The Terminal Shows
+
+The default dashboard includes:
+
+- **High-conviction screen:** 80+ score candidates that clear setup gates.
+- **Unusual activity tape:** daily volume ratio, one-day price impulse, fresh filings/news, and manual block entries.
+- **Deep-dive panel:** ticker-level thesis fit, setup score, risk tier, catalysts, risks, invalidation checks, filings, news, and source links.
+- **Manual block tape:** quick entry for block prints, dark-pool notes, unusual options blocks, or broker-observed activity.
+
+True intraday block-trade feeds require a paid market-data provider. Until one is
+connected, Aurex clearly labels block activity as manual and uses public daily
+volume as the unusual-activity proxy.
+
+## Generate A Thesis Report
+
+```bash
+PYTHONPATH=src python3 -m aurex.cli \
   --thesis "construction equipment demand will skyrocket" \
   --max-market-cap-b 15 \
   --output-dir output/construction-equipment
 ```
 
+The command writes:
+
+- `aurex-research-report.md`
+- `aurex-research-report.json`
+
 ## Daily Email Automation
 
-The repository includes a GitHub Actions workflow that sends one combined
-research digest to `marko@advertra.ca` at approximately 9:00 AM Toronto time.
-It checks at `13:07 UTC` and `14:07 UTC`, then exits immediately unless Toronto
-local time is in the `9 AM` hour. This keeps daylight-saving changes automatic
-while limiting GitHub Actions usage to two short checks per day.
+GitHub Actions sends one combined research digest at approximately 9:00 AM
+Toronto time. The schedule runs at both `13:00 UTC` and `14:00 UTC`; the app
+gates by `America/Toronto`, so only the matching daylight/standard-time run
+sends.
 
-The email combines:
-
-- AI optical-networking bottleneck research
-- AI memory and HBM bottleneck research
-- Construction-equipment demand research
-
-This remains a fixture-backed seed universe until a live research provider is
-added. The email labels that limitation explicitly.
-
-### Zero-Cost Setup
-
-1. Create a free Resend account.
-2. Verify a sending domain in Resend. After a domain is verified, Resend allows
-   sending from any address at that domain.
-3. Create a Resend API key.
-4. In the GitHub repository, open `Settings > Secrets and variables > Actions`.
-5. Add repository secret `RESEND_API_KEY`.
-6. Add repository secret `RESEND_FROM_EMAIL`, for example:
+The digest uses a durable ledger at:
 
 ```text
-Nick Research <research@your-verified-domain.com>
+.github/digest-history.json
 ```
 
-7. Open the repository's `Actions` tab and enable workflows if GitHub asks.
+Every sent ticker is recorded there, and future digests exclude those tickers.
+That means daily emails do not repeat the same names.
 
-The workflow file is `.github/workflows/daily-stock-research.yml`.
+### Email Setup
 
-Resend's free tier currently allows `3,000` transactional emails per month and
-`100` per day. This workflow sends at most one accepted email per day. GitHub
-Actions use is free for standard runners in public repositories. Private
-repositories consume a small amount of the repository owner's included monthly
-Linux-runner minutes.
+1. Create a Resend account.
+2. Verify a sending domain.
+3. Add a GitHub Actions secret named `RESEND_API_KEY`.
+4. Set the workflow sender to a verified domain address.
 
-### Test Without Sending Email
+Current production sender:
 
-Run a local preview:
+```text
+Market Research <research@updates.advertra.ca>
+```
+
+Current recipients are configured in code:
+
+```text
+marko@advertra.ca
+ikeepitstream@gmail.com
+```
+
+### Test The Digest Without Sending
 
 ```bash
-PYTHONPATH=src python3 -m nick_engine.daily_digest --dry-run --force
+PYTHONPATH=src python3 -m aurex.daily_digest --dry-run --force
 ```
 
-Manual GitHub Actions runs also use dry-run mode and do not call Resend.
-Scheduled runs use Resend's API with a Toronto-date idempotency key so retries
-cannot create duplicate morning emails.
+This writes:
+
+```text
+output/daily-digest/daily-stock-research-preview.html
+```
+
+## Data Boundary
+
+Free public sources currently wired:
+
+- SEC ticker map, submissions, and companyfacts
+- Yahoo Finance RSS headlines
+- Stooq daily OHLCV
+- manually entered block-activity observations
+
+Not yet wired:
+
+- live intraday quotes
+- exchange-level block prints
+- unusual options flow feed
+- institutional ownership/fund flow feed
+- earnings-call transcripts
+
+Those can be added behind the same terminal UI as provider adapters.
 
 ## Test
 
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
+

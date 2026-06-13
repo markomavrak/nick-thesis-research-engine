@@ -16,7 +16,7 @@ def _idempotency_key(send_date: date, recipient: str, digest: DailyDigest) -> st
     normalized_recipient = re.sub(r"[^a-z0-9]+", "-", recipient.lower()).strip("-")
     fingerprint_source = f"{digest.subject}\n{digest.html}\n{digest.text}".encode("utf-8")
     fingerprint = sha1(fingerprint_source).hexdigest()[:12]
-    return f"nick-research-{send_date.isoformat()}-{normalized_recipient}-{fingerprint}"
+    return f"aurex-research-{send_date.isoformat()}-{normalized_recipient}-{fingerprint}"
 
 
 class ResendClient:
@@ -59,7 +59,7 @@ class ResendClient:
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json",
                 "Idempotency-Key": _idempotency_key(send_date, to_email, digest),
-                "User-Agent": "nick-thesis-research-engine/1.0",
+                "User-Agent": "aurex-research-terminal/1.0",
             },
         )
         try:

@@ -8,8 +8,8 @@ from nick_engine.daily_digest import (
     ALREADY_RESEARCHED_TICKERS,
     DIGEST_RECIPIENTS,
     HIDDEN_GEM_COMPANIES,
+    MIN_AUREX_SCORE,
     MIN_EXPLOSIVE_SETUP_SCORE,
-    MIN_NICK_SCORE,
     MIN_NEAR_TERM_REASONS,
     build_daily_digest,
     is_toronto_send_hour,
@@ -54,12 +54,12 @@ class DailyDigestTests(unittest.TestCase):
     def test_digest_filters_to_high_scoring_hidden_gems(self):
         reports = _reports(FixtureResearchProvider())
 
-        self.assertEqual(80, MIN_NICK_SCORE)
+        self.assertEqual(80, MIN_AUREX_SCORE)
         for _, report in reports:
             self.assertTrue(report.candidates)
             self.assertLessEqual(len(report.candidates), 3)
             for candidate in report.candidates:
-                self.assertGreaterEqual(candidate.score, MIN_NICK_SCORE)
+                self.assertGreaterEqual(candidate.score, MIN_AUREX_SCORE)
                 self.assertGreaterEqual(candidate.setup_score, MIN_EXPLOSIVE_SETUP_SCORE)
                 self.assertGreaterEqual(len(candidate.setup_reasons), MIN_NEAR_TERM_REASONS)
                 self.assertNotIn(candidate.company.ticker, ALREADY_RESEARCHED_TICKERS)

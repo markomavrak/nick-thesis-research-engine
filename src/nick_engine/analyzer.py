@@ -227,7 +227,7 @@ def analyze_thesis(
         candidates=tuple(ranked),
         generated_at=datetime.now(timezone.utc).isoformat(),
         methodology=(
-            "Research watchlist only. Nick framework: sector rotation first, "
+            "Research watchlist only. Aurex framework: sector rotation first, "
             "then value-chain exposure, bottlenecks, evidence, catalysts, liquidity, and risk."
         ),
     )

@@ -48,7 +48,8 @@ THESIS_TRACKS = (
 )
 
 DIGEST_RECIPIENTS = ("marko@advertra.ca", "ikeepitstream@gmail.com")
-MIN_NICK_SCORE = 80
+MIN_AUREX_SCORE = 80
+MIN_NICK_SCORE = MIN_AUREX_SCORE
 MIN_EXPLOSIVE_SETUP_SCORE = 60
 MIN_NEAR_TERM_REASONS = 2
 MAX_CANDIDATES_PER_THESIS = 3
@@ -1028,7 +1029,11 @@ def _default_research_provider(
     from .providers import FixtureResearchProvider
 
     values = environment if environment is not None else os.environ
-    if values.get("NICK_RESEARCH_PROVIDER", "").lower() == "fixture":
+    configured_provider = (
+        values.get("AUREX_RESEARCH_PROVIDER", "")
+        or values.get("NICK_RESEARCH_PROVIDER", "")
+    ).lower()
+    if configured_provider == "fixture":
         return FixtureResearchProvider()
     live_candidates = tuple(
         company
@@ -1062,7 +1067,7 @@ def _reports(
         high_conviction = tuple(
             candidate
             for candidate in report.candidates
-            if candidate.score >= MIN_NICK_SCORE
+            if candidate.score >= MIN_AUREX_SCORE
             and candidate.setup_score >= MIN_EXPLOSIVE_SETUP_SCORE
             and len(candidate.setup_reasons) >= MIN_NEAR_TERM_REASONS
         )[:MAX_CANDIDATES_PER_THESIS]
@@ -1282,13 +1287,13 @@ def build_daily_digest(
     )
     excluded_note = _excluded_note(excluded_tickers)
     return DailyDigest(
-        subject=f"Market Research Digest | Hidden Gems | {date_label}",
+        subject=f"Aurex Market Research Digest | Hidden Gems | {date_label}",
         html=f"""
         <main style="font-family:Arial,sans-serif;max-width:780px;margin:auto;color:#161616;background:#faf7f0;padding:28px">
           <section style="background:#111;color:#fff;border-radius:18px;padding:24px;margin-bottom:18px">
-            <p style="margin:0 0 8px;color:#d6b46a;font-size:12px;text-transform:uppercase;letter-spacing:.1em">Daily Research Brief</p>
+            <p style="margin:0 0 8px;color:#d6b46a;font-size:12px;text-transform:uppercase;letter-spacing:.1em">Aurex Daily Research Brief</p>
             <h1 style="margin:0;font-size:30px;line-height:1.15">Hidden Gem Stock Research</h1>
-            <p style="margin:12px 0 0;color:#ddd">{html.escape(date_label)} | Snapshot: {html.escape(provider.as_of())} | Minimum score: {MIN_NICK_SCORE} | Setup gate: {MIN_EXPLOSIVE_SETUP_SCORE}</p>
+            <p style="margin:12px 0 0;color:#ddd">{html.escape(date_label)} | Snapshot: {html.escape(provider.as_of())} | Minimum score: {MIN_AUREX_SCORE} | Setup gate: {MIN_EXPLOSIVE_SETUP_SCORE}</p>
           </section>
           <section style="background:#fff;border:1px solid #e6e1d8;border-radius:14px;padding:16px 18px;margin-bottom:18px">
             <p style="margin:0;line-height:1.5"><strong>{html.escape(notice)}</strong></p>
@@ -1298,8 +1303,8 @@ def build_daily_digest(
         </main>
         """,
         text=(
-            f"Hidden Gem Stock Research\n{date_label} | Snapshot: {provider.as_of()} | "
-            f"Minimum score: {MIN_NICK_SCORE} | Setup gate: {MIN_EXPLOSIVE_SETUP_SCORE}\n\n"
+            f"Aurex Hidden Gem Stock Research\n{date_label} | Snapshot: {provider.as_of()} | "
+            f"Minimum score: {MIN_AUREX_SCORE} | Setup gate: {MIN_EXPLOSIVE_SETUP_SCORE}\n\n"
             f"{notice}\n\n{excluded_note}\n\n{text_sections}\n"
         ),
         tickers=selected_tickers,

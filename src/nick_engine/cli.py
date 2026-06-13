@@ -43,7 +43,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         sector_hints=arguments.sector,
     )
     json_path, markdown_path = write_reports(report, Path(arguments.output_dir))
-    print(f"Generated Nick-framework watchlist from seed snapshot {provider.as_of()}.")
+    print(f"Generated Aurex watchlist from seed snapshot {provider.as_of()}.")
     print(f"Candidates: {', '.join(item.company.ticker for item in report.candidates) or 'none'}")
     print(f"JSON: {json_path}")
     print(f"Markdown: {markdown_path}")
