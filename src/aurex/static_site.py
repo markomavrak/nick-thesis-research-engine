@@ -55,6 +55,7 @@ def static_html() -> str:
     * { box-sizing: border-box; }
     body {
       margin: 0;
+      overflow-x: hidden;
       background:
         radial-gradient(circle at top left, rgba(214,180,106,.22), transparent 34rem),
         radial-gradient(circle at top right, rgba(106,169,255,.13), transparent 36rem),
@@ -68,9 +69,10 @@ def static_html() -> str:
     .subhead { color: var(--muted); max-width: 1020px; line-height: 1.55; margin: 0; }
     main { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.25fr) minmax(360px, .75fr); padding: 22px clamp(18px, 4vw, 58px) 58px; }
     @media (max-width: 1080px) { main { grid-template-columns: 1fr; } }
-    .panel { background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)), var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: 0 18px 80px rgba(0,0,0,.28); }
+    .panel { background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)), var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: 0 18px 80px rgba(0,0,0,.28); min-width: 0; }
     .full { grid-column: 1 / -1; }
     .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .metric-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     @media (max-width: 840px) { .cards { grid-template-columns: repeat(2, 1fr); } }
     .card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
     .card strong { font-size: 24px; display: block; }
@@ -79,6 +81,8 @@ def static_html() -> str:
     .section-title h2 { margin: 0; font-size: 18px; }
     .status, .muted { color: var(--muted); }
     .status { font-size: 12px; }
+    button, input, select, textarea { min-height: 44px; }
+    .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 11px 9px; border-bottom: 1px solid rgba(150,160,173,.14); text-align: left; vertical-align: top; }
     th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
@@ -108,6 +112,45 @@ def static_html() -> str:
     .term-card strong { color: var(--gold); display: block; margin-bottom: 4px; }
     details summary { cursor: pointer; color: var(--gold); font-weight: 800; margin-top: 14px; }
     .notice { border: 1px solid rgba(214,180,106,.26); background: rgba(214,180,106,.08); color: #ead8a7; border-radius: 14px; padding: 12px; line-height: 1.45; }
+    @media (max-width: 640px) {
+      header { padding: 22px 14px 14px; }
+      h1 { font-size: clamp(38px, 15vw, 58px); }
+      .subhead { font-size: 14px; }
+      main { gap: 12px; padding: 14px 12px 36px; }
+      .panel { border-radius: 16px; padding: 14px; }
+      .cards, .metric-cards, .learning-grid, .term-grid { grid-template-columns: 1fr; }
+      .section-title { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .pill { white-space: normal; overflow-wrap: anywhere; }
+      .table-scroll { overflow: visible; }
+      table, thead, tbody, tr, th, td { display: block; width: 100%; }
+      thead { display: none; }
+      tr {
+        background: #0d1118;
+        border: 1px solid rgba(150,160,173,.18);
+        border-radius: 14px;
+        margin-bottom: 10px;
+        padding: 10px 12px;
+      }
+      td {
+        display: grid;
+        grid-template-columns: 104px minmax(0, 1fr);
+        gap: 10px;
+        border-bottom: 1px solid rgba(150,160,173,.12);
+        padding: 8px 0;
+      }
+      td:last-child { border-bottom: 0; }
+      td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      td.ticker { font-size: 18px; }
+      td.ticker::before { color: var(--muted); }
+      .detail h3 { font-size: 24px; line-height: 1.1; }
+    }
   </style>
 </head>
 <body>
@@ -135,7 +178,7 @@ def static_html() -> str:
 
     <section class="panel full">
       <div class="section-title"><h2>High-Conviction Screen</h2><span class="status">Click a row for deep dive</span></div>
-      <div style="overflow:auto">
+      <div class="table-scroll">
         <table>
           <thead><tr><th>Ticker</th><th>Company</th><th>Score</th><th>Setup</th><th>Risk</th><th>Why It Matters</th></tr></thead>
           <tbody id="candidateRows"></tbody>
@@ -150,7 +193,7 @@ def static_html() -> str:
 
     <section class="panel">
       <div class="section-title"><h2>Unusual Activity Tape</h2><span class="status">Public snapshot</span></div>
-      <div style="overflow:auto">
+      <div class="table-scroll">
         <table>
           <thead><tr><th>Ticker</th><th>Severity</th><th>Score</th><th>Move</th><th>Volume</th><th>Flags</th></tr></thead>
           <tbody id="activityRows"></tbody>
@@ -202,21 +245,21 @@ def static_html() -> str:
         .join("");
       $("candidateRows").innerHTML = payload.candidates.length ? payload.candidates.map(item => `
         <tr class="clickable" onclick="showCandidate('${escapeHtml(item.ticker)}')">
-          <td class="ticker">${escapeHtml(item.ticker)}</td>
-          <td>${escapeHtml(item.name)}<br><span class="muted">${escapeHtml(item.sector)} / ${escapeHtml(item.industry)}</span></td>
-          <td class="score">${item.score}</td>
-          <td>${item.setup_score}</td>
-          <td class="risk">${escapeHtml(item.risk_tier)}</td>
-          <td>${escapeHtml(item.value_chain_layer)}<br>${item.setup_reasons.slice(0, 3).map(pill).join("")}</td>
+          <td data-label="Ticker" class="ticker">${escapeHtml(item.ticker)}</td>
+          <td data-label="Company">${escapeHtml(item.name)}<br><span class="muted">${escapeHtml(item.sector)} / ${escapeHtml(item.industry)}</span></td>
+          <td data-label="Score" class="score">${item.score}</td>
+          <td data-label="Setup">${item.setup_score}</td>
+          <td data-label="Risk" class="risk">${escapeHtml(item.risk_tier)}</td>
+          <td data-label="Why It Matters">${escapeHtml(item.value_chain_layer)}<br>${item.setup_reasons.slice(0, 3).map(pill).join("")}</td>
         </tr>`).join("") : `<tr><td colspan="6" class="muted">No candidates matched the current gate.</td></tr>`;
       $("activityRows").innerHTML = payload.activity.length ? payload.activity.map(item => `
         <tr class="clickable" onclick="showCandidate('${escapeHtml(item.ticker)}')">
-          <td class="ticker">${escapeHtml(item.ticker)}</td>
-          <td class="${escapeHtml(item.severity)}">${escapeHtml(item.severity.toUpperCase())}</td>
-          <td>${item.score}</td>
-          <td>${pct(item.one_day_move_pct)}</td>
-          <td>${item.volume_ratio ? item.volume_ratio.toFixed(1) + "x" : "-"}</td>
-          <td>${item.flags.map(pill).join("")}</td>
+          <td data-label="Ticker" class="ticker">${escapeHtml(item.ticker)}</td>
+          <td data-label="Severity" class="${escapeHtml(item.severity)}">${escapeHtml(item.severity.toUpperCase())}</td>
+          <td data-label="Score">${item.score}</td>
+          <td data-label="Move">${pct(item.one_day_move_pct)}</td>
+          <td data-label="Volume">${item.volume_ratio ? item.volume_ratio.toFixed(1) + "x" : "-"}</td>
+          <td data-label="Flags">${item.flags.map(pill).join("")}</td>
         </tr>`).join("") : `<tr><td colspan="6" class="muted">No unusual activity flags from current public snapshot.</td></tr>`;
     }
 
@@ -259,7 +302,7 @@ def static_html() -> str:
         <div class="section-title"><h2>Deep Dive</h2><span class="ticker">${escapeHtml(item.ticker)}</span></div>
         <h3>${escapeHtml(item.ticker)} - ${escapeHtml(item.name)}</h3>
         <p>${escapeHtml(item.summary)}</p>
-        <div class="cards" style="grid-template-columns: repeat(3, 1fr)">
+        <div class="cards metric-cards">
           <div class="card"><strong>${item.score}</strong><span>Aurex score</span></div>
           <div class="card"><strong>${item.setup_score}</strong><span>Setup score</span></div>
           <div class="card"><strong>${escapeHtml(item.risk_tier)}</strong><span>Risk tier</span></div>
