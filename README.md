@@ -10,6 +10,7 @@ setups that fit a defined market thesis. It combines:
 - unusual daily volume and price-impulse flags
 - manual block-activity tape entry
 - AI value-chain Learning Center for wafers, packaging, HBM, optics, CPO, power, and chokepoint research
+- free public GitHub Pages deployment for `aurex.archive.trading`
 - daily 9 AM email digest automation
 
 Aurex surfaces research targets and source trails. It does not issue buy/sell
@@ -73,6 +74,21 @@ Full documentation is in:
 
 ```text
 docs/aurex-learning-center.md
+```
+
+## Public Site
+
+AUREX can generate a static public dashboard for GitHub Pages:
+
+```bash
+PYTHONPATH=src python3 -m aurex.static_site --output-dir public --domain aurex.archive.trading
+```
+
+The GitHub Actions workflow at `.github/workflows/aurex-pages.yml` deploys the
+site to `https://aurex.archive.trading`. DNS setup is documented in:
+
+```text
+docs/aurex-public-deployment.md
 ```
 
 ## Generate A Thesis Report
