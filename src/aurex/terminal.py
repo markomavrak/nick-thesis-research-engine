@@ -17,6 +17,7 @@ from nick_engine.live_provider import CompanyLiveSnapshot, PublicMarketDataClien
 from nick_engine.models import CandidateCompany, Evidence, RankedCandidate, RotationSignal
 
 from . import APP_NAME
+from .learning import learning_payload
 
 
 DEFAULT_THESIS = "AI data center optical networking and memory bottlenecks with construction equipment demand"
@@ -421,6 +422,7 @@ class AurexTerminal:
             },
             "candidates": [self._candidate_payload(candidate) for candidate in candidates],
             "activity": [asdict(item) for item in activity],
+            "learning_center": learning_payload(),
         }
 
     @staticmethod

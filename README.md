@@ -9,6 +9,7 @@ setups that fit a defined market thesis. It combines:
 - live public-source enrichment from SEC filings, Yahoo Finance RSS, and Stooq daily OHLCV
 - unusual daily volume and price-impulse flags
 - manual block-activity tape entry
+- AI value-chain Learning Center for wafers, packaging, HBM, optics, CPO, power, and chokepoint research
 - daily 9 AM email digest automation
 
 Aurex surfaces research targets and source trails. It does not issue buy/sell
@@ -49,10 +50,30 @@ The default dashboard includes:
 - **Unusual activity tape:** daily volume ratio, one-day price impulse, fresh filings/news, and manual block entries.
 - **Deep-dive panel:** ticker-level thesis fit, setup score, risk tier, catalysts, risks, invalidation checks, filings, news, and source links.
 - **Manual block tape:** quick entry for block prints, dark-pool notes, unusual options blocks, or broker-observed activity.
+- **Learning Center:** plain-English AI infrastructure curriculum, glossary, key research questions, and source links for wafers, packaging, HBM, networking, optics, CPO, power, and chokepoint research.
 
 True intraday block-trade feeds require a paid market-data provider. Until one is
 connected, Aurex clearly labels block activity as manual and uses public daily
 volume as the unusual-activity proxy.
+
+## Learning Center
+
+The terminal includes a built-in AI value-chain reference library. It is designed
+to make the language of AI bottlenecks easy to access while researching stocks:
+
+- Wafers and front-end manufacturing
+- Advanced packaging and chiplets
+- HBM and the memory bandwidth wall
+- AI data-center networking
+- Optics, lasers, silicon photonics, and CPO
+- Power, cooling, and rack constraints
+- Serenity-style chokepoint research
+
+Full documentation is in:
+
+```text
+docs/aurex-learning-center.md
+```
 
 ## Generate A Thesis Report
 
@@ -140,4 +161,3 @@ Those can be added behind the same terminal UI as provider adapters.
 ```bash
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
-

@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 from . import APP_NAME
+from .learning import learning_payload
 from .terminal import AurexTerminal, DEFAULT_BLOCK_ACTIVITY_PATH, DEFAULT_THESIS, ManualBlockActivity
 
 
@@ -135,6 +136,36 @@ HTML = """<!doctype html>
     @media (max-width: 680px) { .grid-2 { grid-template-columns: 1fr; } }
     .source-box { font-size: 12px; color: var(--muted); line-height: 1.45; }
     .error { color: var(--red); }
+    .learning-panel { grid-column: 1 / -1; }
+    .learning-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .learning-card {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .learning-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--gold); }
+    .learning-card p { color: #d8dee7; line-height: 1.5; margin: 8px 0; }
+    .learning-card a { color: var(--gold); text-decoration: none; }
+    .learning-card a:hover { text-decoration: underline; }
+    .term-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .term-card {
+      border: 1px solid rgba(150,160,173,.2);
+      border-radius: 12px;
+      padding: 10px;
+      background: #0d1118;
+    }
+    .term-card strong { color: var(--gold); display: block; margin-bottom: 4px; }
+    details summary { cursor: pointer; color: var(--gold); font-weight: 800; margin-top: 14px; }
   </style>
 </head>
 <body>
@@ -176,6 +207,19 @@ HTML = """<!doctype html>
         <span class="status">Auto-refresh every 5 min</span>
       </div>
       <div id="sourceStatus" class="source-box">Loading...</div>
+    </section>
+
+    <section class="panel learning-panel">
+      <div class="section-title">
+        <h2>Learning Center</h2>
+        <span class="status">AI value chain, bottlenecks, definitions, videos</span>
+      </div>
+      <p id="learningSummary" class="muted">Loading AI value-chain reference library...</p>
+      <div id="learningGrid" class="learning-grid"></div>
+      <details>
+        <summary>Open Glossary</summary>
+        <div id="glossaryGrid" class="term-grid"></div>
+      </details>
     </section>
 
     <section class="panel">
@@ -269,6 +313,16 @@ HTML = """<!doctype html>
       renderDashboard(currentPayload);
     }
 
+    async function loadLearning() {
+      try {
+        const response = await fetch("/api/learning");
+        if (!response.ok) throw new Error(`Learning endpoint returned ${response.status}`);
+        renderLearning(await response.json());
+      } catch (error) {
+        $("learningSummary").textContent = "Learning Center could not load.";
+      }
+    }
+
     function renderDashboard(payload) {
       $("universeCount").textContent = fmtNum(payload.summary.universe_count);
       $("candidateCount").textContent = fmtNum(payload.summary.candidate_count);
@@ -277,6 +331,7 @@ HTML = """<!doctype html>
       $("sourceStatus").innerHTML = Object.entries(payload.source_status)
         .map(([k, v]) => `<div><strong>${escapeHtml(k.replaceAll("_", " "))}:</strong> ${escapeHtml(v)}</div>`)
         .join("");
+      renderLearning(payload.learning_center);
 
       $("candidateRows").innerHTML = payload.candidates.length ? payload.candidates.map(item => `
         <tr class="clickable" onclick="loadTicker('${escapeHtml(item.ticker)}')">
@@ -297,6 +352,35 @@ HTML = """<!doctype html>
           <td>${item.volume_ratio ? item.volume_ratio.toFixed(1) + "x" : "-"}</td>
           <td>${item.flags.map(pill).join("")}</td>
         </tr>`).join("") : `<tr><td colspan="6" class="muted">No unusual activity flags from current sources.</td></tr>`;
+    }
+
+    function renderLearning(learning) {
+      if (!learning) return;
+      $("learningSummary").innerHTML = `
+        ${escapeHtml(learning.subtitle)}<br>
+        <strong>${escapeHtml(learning.research_loop)}</strong><br>
+        ${learning.featured_terms.map(pill).join("")}
+      `;
+      $("learningGrid").innerHTML = learning.modules.map(module => `
+        <article class="learning-card">
+          <h3>${escapeHtml(module.title)}</h3>
+          <p>${escapeHtml(module.plain_english)}</p>
+          <p><strong>Why it matters:</strong> ${escapeHtml(module.why_it_matters)}</p>
+          <p><strong>Stock research angle:</strong> ${escapeHtml(module.stock_research_angle)}</p>
+          <div>${module.hard_terms.slice(0, 7).map(pill).join("")}</div>
+          <h4>Questions to ask</h4>
+          <ul class="list">${module.key_questions.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>
+          <h4>Watch / read</h4>
+          <ul class="list">${module.videos.map(video => `<li><a href="${escapeHtml(video.url)}" target="_blank">${escapeHtml(video.title)}</a> <span class="muted">${escapeHtml(video.source)}</span></li>`).join("")}</ul>
+        </article>
+      `).join("");
+      $("glossaryGrid").innerHTML = learning.glossary.map(term => `
+        <div class="term-card">
+          <strong>${escapeHtml(term.term)}</strong>
+          <div>${escapeHtml(term.definition)}</div>
+          <div class="muted">${escapeHtml(term.why_it_matters)}</div>
+        </div>
+      `).join("");
     }
 
     async function loadTicker(ticker) {
@@ -358,6 +442,7 @@ HTML = """<!doctype html>
     $("refresh").addEventListener("click", () => loadDashboard(true));
     $("saveBlock").addEventListener("click", saveBlock);
     setInterval(() => loadDashboard(true), 5 * 60 * 1000);
+    loadLearning();
     loadDashboard(false);
   </script>
 </body>
@@ -420,6 +505,9 @@ class AurexRequestHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/block-activity":
             self._send_json({"items": [vars(item) for item in self.terminal._manual_blocks()]})
+            return
+        if parsed.path == "/api/learning":
+            self._send_json(learning_payload())
             return
         self._send_json({"error": "not found"}, HTTPStatus.NOT_FOUND)
 
@@ -495,4 +583,3 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
