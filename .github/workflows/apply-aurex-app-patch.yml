@@ -1,0 +1,40 @@
+name: Temporary Apply Aurex App Patch
+
+on:
+  push:
+    paths:
+      - ".github/aurex-app-payload.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Decode and apply patch
+        run: |
+          python3 - <<'PY'
+          import base64
+          import gzip
+          from pathlib import Path
+          payload = Path('.github/aurex-app-payload.txt').read_text().strip()
+          patch = gzip.decompress(base64.b64decode(payload))
+          Path('/tmp/aurex-app.patch').write_bytes(patch)
+          PY
+          git apply /tmp/aurex-app.patch
+      - name: Verify
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -v
+      - name: Commit applied app patch
+        run: |
+          rm -f .github/aurex-app-payload.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md src tests .github/aurex-app-payload.txt
+          git commit -m "Launch Aurex Research Terminal [skip ci]"
+          git push
