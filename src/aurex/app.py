@@ -34,6 +34,7 @@ HTML = """<!doctype html>
     * { box-sizing: border-box; }
     body {
       margin: 0;
+      overflow-x: hidden;
       background:
         radial-gradient(circle at top left, rgba(214,180,106,.18), transparent 32rem),
         radial-gradient(circle at top right, rgba(106,169,255,.12), transparent 34rem),
@@ -67,6 +68,7 @@ HTML = """<!doctype html>
       border-radius: 18px;
       padding: 18px;
       box-shadow: 0 18px 80px rgba(0,0,0,.28);
+      min-width: 0;
     }
     .controls {
       display: grid;
@@ -84,6 +86,7 @@ HTML = """<!doctype html>
       color: var(--text);
       padding: 11px 12px;
       font: inherit;
+      min-height: 44px;
     }
     textarea { min-height: 82px; resize: vertical; }
     button {
@@ -99,6 +102,7 @@ HTML = """<!doctype html>
       border-color: var(--line);
     }
     .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+    .metric-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     @media (max-width: 840px) { .cards { grid-template-columns: repeat(2, 1fr); } }
     .card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
     .card strong { font-size: 24px; display: block; }
@@ -106,6 +110,7 @@ HTML = """<!doctype html>
     .section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 0 0 12px; }
     .section-title h2 { margin: 0; font-size: 18px; }
     .status { color: var(--muted); font-size: 12px; }
+    .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 11px 9px; border-bottom: 1px solid rgba(150,160,173,.14); text-align: left; vertical-align: top; }
     th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
@@ -166,6 +171,45 @@ HTML = """<!doctype html>
     }
     .term-card strong { color: var(--gold); display: block; margin-bottom: 4px; }
     details summary { cursor: pointer; color: var(--gold); font-weight: 800; margin-top: 14px; }
+    @media (max-width: 640px) {
+      header { padding: 22px 14px 14px; }
+      h1 { font-size: clamp(38px, 15vw, 58px); }
+      .subhead { font-size: 14px; }
+      main { gap: 12px; padding: 14px 12px 36px; }
+      .panel { border-radius: 16px; padding: 14px; }
+      .cards, .metric-cards, .learning-grid, .term-grid { grid-template-columns: 1fr; }
+      .section-title { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .pill { white-space: normal; overflow-wrap: anywhere; }
+      .table-scroll { overflow: visible; }
+      table, thead, tbody, tr, th, td { display: block; width: 100%; }
+      thead { display: none; }
+      tr {
+        background: #0d1118;
+        border: 1px solid rgba(150,160,173,.18);
+        border-radius: 14px;
+        margin-bottom: 10px;
+        padding: 10px 12px;
+      }
+      td {
+        display: grid;
+        grid-template-columns: 104px minmax(0, 1fr);
+        gap: 10px;
+        border-bottom: 1px solid rgba(150,160,173,.12);
+        padding: 8px 0;
+      }
+      td:last-child { border-bottom: 0; }
+      td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      td.ticker { font-size: 18px; }
+      td.ticker::before { color: var(--muted); }
+      .detail h3 { font-size: 24px; line-height: 1.1; }
+    }
   </style>
 </head>
 <body>
@@ -227,7 +271,7 @@ HTML = """<!doctype html>
         <h2>High-Conviction Screen</h2>
         <span class="status">Click a row for deep dive</span>
       </div>
-      <div style="overflow:auto">
+      <div class="table-scroll">
         <table>
           <thead><tr><th>Ticker</th><th>Company</th><th>Score</th><th>Setup</th><th>Risk</th><th>Why It Matters</th></tr></thead>
           <tbody id="candidateRows"></tbody>
@@ -245,7 +289,7 @@ HTML = """<!doctype html>
         <h2>Unusual Activity Tape</h2>
         <span class="status">Daily public data + manual blocks</span>
       </div>
-      <div style="overflow:auto">
+      <div class="table-scroll">
         <table>
           <thead><tr><th>Ticker</th><th>Severity</th><th>Score</th><th>Move</th><th>Volume</th><th>Flags</th></tr></thead>
           <tbody id="activityRows"></tbody>
@@ -335,22 +379,22 @@ HTML = """<!doctype html>
 
       $("candidateRows").innerHTML = payload.candidates.length ? payload.candidates.map(item => `
         <tr class="clickable" onclick="loadTicker('${escapeHtml(item.ticker)}')">
-          <td class="ticker">${escapeHtml(item.ticker)}</td>
-          <td>${escapeHtml(item.name)}<br><span class="muted">${escapeHtml(item.sector)} / ${escapeHtml(item.industry)}</span></td>
-          <td class="score">${item.score}</td>
-          <td>${item.setup_score}</td>
-          <td class="risk">${escapeHtml(item.risk_tier)}</td>
-          <td>${escapeHtml(item.value_chain_layer)}<br>${item.setup_reasons.slice(0, 2).map(pill).join("")}</td>
+          <td data-label="Ticker" class="ticker">${escapeHtml(item.ticker)}</td>
+          <td data-label="Company">${escapeHtml(item.name)}<br><span class="muted">${escapeHtml(item.sector)} / ${escapeHtml(item.industry)}</span></td>
+          <td data-label="Score" class="score">${item.score}</td>
+          <td data-label="Setup">${item.setup_score}</td>
+          <td data-label="Risk" class="risk">${escapeHtml(item.risk_tier)}</td>
+          <td data-label="Why It Matters">${escapeHtml(item.value_chain_layer)}<br>${item.setup_reasons.slice(0, 2).map(pill).join("")}</td>
         </tr>`).join("") : `<tr><td colspan="6" class="muted">No candidates matched the current gate.</td></tr>`;
 
       $("activityRows").innerHTML = payload.activity.length ? payload.activity.map(item => `
         <tr class="clickable" onclick="loadTicker('${escapeHtml(item.ticker)}')">
-          <td class="ticker">${escapeHtml(item.ticker)}</td>
-          <td class="${escapeHtml(item.severity)}">${escapeHtml(item.severity.toUpperCase())}</td>
-          <td>${item.score}</td>
-          <td>${pct(item.one_day_move_pct)}</td>
-          <td>${item.volume_ratio ? item.volume_ratio.toFixed(1) + "x" : "-"}</td>
-          <td>${item.flags.map(pill).join("")}</td>
+          <td data-label="Ticker" class="ticker">${escapeHtml(item.ticker)}</td>
+          <td data-label="Severity" class="${escapeHtml(item.severity)}">${escapeHtml(item.severity.toUpperCase())}</td>
+          <td data-label="Score">${item.score}</td>
+          <td data-label="Move">${pct(item.one_day_move_pct)}</td>
+          <td data-label="Volume">${item.volume_ratio ? item.volume_ratio.toFixed(1) + "x" : "-"}</td>
+          <td data-label="Flags">${item.flags.map(pill).join("")}</td>
         </tr>`).join("") : `<tr><td colspan="6" class="muted">No unusual activity flags from current sources.</td></tr>`;
     }
 
@@ -394,7 +438,7 @@ HTML = """<!doctype html>
         <div class="section-title"><h2>Deep Dive</h2><span class="ticker">${escapeHtml(company.ticker)}</span></div>
         <h3>${escapeHtml(company.ticker)} - ${escapeHtml(company.name)}</h3>
         <p>${escapeHtml(company.summary)}</p>
-        <div class="cards" style="grid-template-columns: repeat(3, 1fr)">
+        <div class="cards metric-cards">
           <div class="card"><strong>${ranked ? ranked.score : "-"}</strong><span>Aurex score</span></div>
           <div class="card"><strong>${ranked ? ranked.setup_score : "-"}</strong><span>Setup score</span></div>
           <div class="card"><strong>${snapshot && snapshot.price ? "$" + snapshot.price.toFixed(2) : "-"}</strong><span>Last price</span></div>
