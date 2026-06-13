@@ -60,6 +60,20 @@ class AurexLearningTests(unittest.TestCase):
                 self.assertTrue(video["title"])
                 self.assertTrue(video["url"].startswith("https://"))
 
+    def test_each_learning_module_has_visual_metadata(self):
+        payload = learning_payload()
+
+        for module in payload["modules"]:
+            self.assertTrue(module["icon"])
+            self.assertTrue(module["visual_title"])
+            self.assertTrue(module["visual_caption"])
+            self.assertGreaterEqual(len(module["visual_nodes"]), 3)
+
+        module_icons = {module["icon"] for module in payload["modules"]}
+        self.assertIn("wafer", module_icons)
+        self.assertIn("package", module_icons)
+        self.assertIn("optics", module_icons)
+
     def test_terminal_dashboard_exposes_learning_center(self):
         payload = AurexTerminal(
             companies=(learning_test_company(),),
@@ -77,6 +91,28 @@ class AurexLearningTests(unittest.TestCase):
         self.assertIn("renderLearning", app.HTML)
         self.assertIn("async function loadLearning", app.HTML)
         self.assertIn('fetch("/api/learning")', app.HTML)
+
+    def test_app_shell_uses_tabbed_workflow_navigation(self):
+        self.assertIn('class="app-nav"', app.HTML)
+        self.assertIn('data-tab-target="researchTab"', app.HTML)
+        self.assertIn('data-tab-target="learningTab"', app.HTML)
+        self.assertIn('id="researchTab"', app.HTML)
+        self.assertIn('id="learningTab"', app.HTML)
+        self.assertIn('class="tab-panel active"', app.HTML)
+        self.assertIn("function switchTab", app.HTML)
+        self.assertIn("Research Workflow", app.HTML)
+        self.assertIn("Screen candidates", app.HTML)
+        self.assertIn("Open deep dive", app.HTML)
+        self.assertIn("Check activity tape", app.HTML)
+
+    def test_app_shell_has_visual_learning_cards_and_richer_deep_dive(self):
+        self.assertIn("learning-visual", app.HTML)
+        self.assertIn("moduleIconSvg", app.HTML)
+        self.assertIn("visual_nodes", app.HTML)
+        self.assertIn("Thesis Fit", app.HTML)
+        self.assertIn("Setup Intelligence", app.HTML)
+        self.assertIn("Catalysts", app.HTML)
+        self.assertIn("Invalidation", app.HTML)
 
     def test_app_shell_has_phone_first_responsive_layout(self):
         self.assertIn("overflow-x: hidden", app.HTML)
