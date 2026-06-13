@@ -1,0 +1,39 @@
+name: Apply AUREX Learning Center Patch
+
+on:
+  push:
+    paths:
+      - .github/aurex-learning-payload.txt
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Decode patch
+        run: |
+          python3 - <<'PY'
+          import base64, gzip, pathlib
+          payload = pathlib.Path('.github/aurex-learning-payload.txt').read_text(encoding='ascii').strip()
+          patch = gzip.decompress(base64.b64decode(payload))
+          pathlib.Path('/tmp/aurex-learning.patch').write_bytes(patch)
+          print(f'Decoded patch bytes: {len(patch)}')
+          PY
+      - name: Apply patch
+        run: git apply --index /tmp/aurex-learning.patch
+      - name: Run tests
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -v
+      - name: Remove temporary deploy files
+        run: |
+          git rm -f .github/aurex-learning-payload.txt .github/workflows/apply-aurex-learning-patch.yml
+      - name: Commit and push
+        run: |
+          git config user.name "aurex-deploy-bot"
+          git config user.email "aurex-deploy-bot@users.noreply.github.com"
+          git commit -m "Add AUREX AI value chain learning center"
+          git push
