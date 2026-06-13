@@ -325,6 +325,64 @@ GLOSSARY = (
 )
 
 
+LEARNING_VISUALS = {
+    "AI Compute And Cluster Architecture": {
+        "icon": "cluster",
+        "visual_title": "Cluster as one machine",
+        "visual_nodes": ("Hyperscaler capex", "GPU rack", "HBM", "Network fabric", "Utilization"),
+        "visual_caption": "The tradeable bottleneck is the part that keeps expensive accelerators from staying busy.",
+    },
+    "Wafers And Front-End Manufacturing": {
+        "icon": "wafer",
+        "visual_title": "Wafer to known-good die",
+        "visual_nodes": ("Silicon wafer", "Lithography", "Etch/deposit", "Inspection", "Known-good die"),
+        "visual_caption": "Yield converts a fixed wafer start into more usable AI chips without building a new fab.",
+    },
+    "Advanced Packaging And Chiplets": {
+        "icon": "package",
+        "visual_title": "GPU plus HBM package",
+        "visual_nodes": ("GPU die", "HBM stack", "Interposer", "Substrate", "Accelerator module"),
+        "visual_caption": "Packaging is where compute and memory become one sellable AI accelerator.",
+    },
+    "HBM And The Memory Bandwidth Wall": {
+        "icon": "memory",
+        "visual_title": "Stacked memory path",
+        "visual_nodes": ("DRAM dies", "TSVs", "HBM stack", "Accelerator", "Model bandwidth"),
+        "visual_caption": "The shorter and wider the memory path, the less the model waits on data movement.",
+    },
+    "AI Data Center Networking": {
+        "icon": "network",
+        "visual_title": "Scale-out fabric",
+        "visual_nodes": ("GPU rack", "NIC", "Switch ASIC", "Optics/cables", "Cluster fabric"),
+        "visual_caption": "Networking decides whether thousands of accelerators act like one system or isolated boxes.",
+    },
+    "Optics, Lasers, Silicon Photonics, And CPO": {
+        "icon": "optics",
+        "visual_title": "Electricity to light",
+        "visual_nodes": ("Laser", "Modulator", "Fiber", "Photodetector", "Switch/CPO"),
+        "visual_caption": "Optics move data farther and denser when electrical signaling runs into power and loss limits.",
+    },
+    "Power, Cooling, And The Rack Constraint": {
+        "icon": "power",
+        "visual_title": "Rack power and heat path",
+        "visual_nodes": ("Grid", "PDU", "VRM", "Liquid loop", "AI rack"),
+        "visual_caption": "Power delivery and heat removal decide how much compute can actually fit in a rack.",
+    },
+    "Serenity-Style Chokepoint Research": {
+        "icon": "chokepoint",
+        "visual_title": "Evidence funnel",
+        "visual_nodes": ("Value-chain map", "Bottleneck", "Obscure supplier", "Source proof", "Invalidation"),
+        "visual_caption": "The edge is finding the hard-to-replace supplier before the broader market connects the dots.",
+    },
+}
+
+
+def _module_payload(module: LearningModule) -> dict:
+    payload = asdict(module)
+    payload.update(LEARNING_VISUALS[module.title])
+    return payload
+
+
 def learning_payload() -> dict:
     return {
         "title": "AI Value Chain Learning Center",
@@ -339,6 +397,6 @@ def learning_payload() -> dict:
             "Map the value chain -> find the physical bottleneck -> identify the obscure supplier -> "
             "validate with filings/customer evidence -> define what would kill the thesis."
         ),
-        "modules": [asdict(module) for module in LEARNING_MODULES],
+        "modules": [_module_payload(module) for module in LEARNING_MODULES],
         "glossary": [asdict(term) for term in GLOSSARY],
     }
