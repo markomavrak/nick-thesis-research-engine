@@ -78,6 +78,19 @@ class AurexLearningTests(unittest.TestCase):
         self.assertIn("async function loadLearning", app.HTML)
         self.assertIn('fetch("/api/learning")', app.HTML)
 
+    def test_app_shell_has_phone_first_responsive_layout(self):
+        self.assertIn("overflow-x: hidden", app.HTML)
+        self.assertIn("@media (max-width: 640px)", app.HTML)
+        self.assertIn(".table-scroll", app.HTML)
+        self.assertIn("td::before", app.HTML)
+        self.assertIn("content: attr(data-label)", app.HTML)
+        self.assertIn("min-height: 44px", app.HTML)
+        self.assertIn(".metric-cards", app.HTML)
+        self.assertIn('data-label="Ticker"', app.HTML)
+        self.assertIn('data-label="Why It Matters"', app.HTML)
+        self.assertIn('class="cards metric-cards"', app.HTML)
+        self.assertNotIn('style="grid-template-columns: repeat(3, 1fr)"', app.HTML)
+
 
 if __name__ == "__main__":
     unittest.main()
