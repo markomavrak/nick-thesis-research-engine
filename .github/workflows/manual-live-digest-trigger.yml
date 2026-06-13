@@ -27,8 +27,8 @@ jobs:
       - name: Send live digest
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || secrets.RESEARCH_ENGINE }}
-          RESEND_FROM_EMAIL: Market Research <research@updates.advertra.ca>
-        run: PYTHONPATH=src python3 -m nick_engine.daily_digest --force
+          RESEND_FROM_EMAIL: Aurex Research <research@updates.advertra.ca>
+        run: PYTHONPATH=src python3 -m aurex.daily_digest --force
 
       - name: Persist digest history
         run: |
