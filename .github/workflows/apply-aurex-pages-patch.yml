@@ -23,7 +23,7 @@ jobs:
           payload = pathlib.Path('.github/aurex-pages-payload.txt').read_text(encoding='ascii').strip()
           # The GitHub contents API round-trip for this one large base64 payload
           # flipped one '/' to '7'. Normalize the known marker before decoding.
-          payload = payload.replace('FvYAhUB7a2a5s', 'FvYAhUB/a2a5s')
+          payload = payload.replace('YAhUB7a2a5s', 'YAhUB/a2a5s')
           patch = gzip.decompress(base64.b64decode(payload))
           pathlib.Path('/tmp/aurex-pages.patch').write_bytes(patch)
           print(f'Decoded patch bytes: {len(patch)}')
